@@ -1,14 +1,24 @@
 <script setup>
 import HelloWorld from './components/HelloWorld.vue'
+import loginview from './views/loginview.vue';
 </script>
 
 <template>
- <h1 class="text-3xl font-bold underline">
-    Hello world!
-  </h1>
+
+
+  <div class="bg-blue-500 flex justify-center h-screen">
+    <loginview />
+  </div>
+    
 </template>
 
 <style scoped>
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+
+
 header {
   line-height: 1.5;
 }
