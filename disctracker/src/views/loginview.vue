@@ -46,39 +46,61 @@
               <a href="signup" class="ml-6 text-blue-500" @click.prevent="toggleMode">{{mode=='signin' ? 'Sign up': 'Log in'}}</a> 
             </div>
           </div>
-        
       </div>
     </div>
+
+    <div>{{backendString}}</div>
   </template>
   
   
   
   
-  <script>
-  export default {
+  <script setup>
+  import { ref, onMounted} from 'vue'
 
-    data(){
-      return{
-        mode: 'signin'
-      };
-    },
-    methods: {
-      toggleMode(){
-        this.mode = this.mode === 'signin' ? 'signup': 'signin';
-      },
-      handleSignin() {
-        // Handle form submission here (e.g., send login request)
-        console.log('Username:', this.username);
-        console.log('Password:', this.password);
-      },
-      handleSignup() {
-        // Handle form submission here (e.g., send login request)
-        console.log('Username:', this.username);
-        console.log('Password:', this.password);
-      }
+  // Define reactive variables
+  const username = ref('');
+  const email = ref('');
+  const password = ref('');
+  const repeatpsw = ref('');
+  const gender = ref('');
+  const mode = ref('signin');
+  const backendString = ref('hej');
+
+  // Define methods
+  const toggleMode = () => {
+    mode.value = mode.value === 'signin' ? 'signup' : 'signin';
+  };
+
+  const handleSignin = () => {
+    // Handle form submission here (e.g., send login request)
+    console.log('Username:', username.value);
+    console.log('Password:', password.value);
+  };
+
+  const handleSignup = () => {
+    // Handle form submission here (e.g., send login request)
+    if (password.value !== repeatpsw.value) {
+      console.log("Passwords didn't match");
+    } else {
+      console.log('Username:', username.value);
+      console.log('Password:', password.value);
     }
   };
-  </script>
+  onMounted(async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/');
+    if (!response.ok) {
+      throw new Error('Failed to fetch data from backend');
+    }
+    const data = await response.text();
+    backendString.value = data;
+  } catch (error) {
+    console.error('Error fetching data from backend:', error);
+  }
+ });
+</script>
+
   
   <style>
   /* Add your custom styles here */
