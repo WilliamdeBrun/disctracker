@@ -5,11 +5,17 @@ import loginview from './views/loginview.vue';
 
 <template>
 
-
-  <div class="bg-blue-500 flex justify-center h-screen">
+  <div>
+    <router-view /> <!-- This is where the router will render the appropriate component -->
+  </div>
+  <!--
+ <div class="bg-blue-500 flex justify-center h-screen">
     <loginview />
   </div>
     
+
+  -->
+ 
 </template>
 
 <style scoped>

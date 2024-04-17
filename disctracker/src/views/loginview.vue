@@ -42,13 +42,13 @@
         </form>
           <div class="flex items-center justify-between">
             <div class="flex items-center"> 
-              <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600">{{mode=='signin' ? 'Log in': 'Sign up'}}</button>
+              <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600" @click="handleSignin">{{mode=='signin' ? 'Log in': 'Sign up'}}</button>
               <a href="signup" class="ml-6 text-blue-500" @click.prevent="toggleMode">{{mode=='signin' ? 'Sign up': 'Log in'}}</a> 
             </div>
           </div>
       </div>
     </div>
-
+    <button type="submit" class=""> <router-link to="/dashboard"> LINK</router-link></button>
     <div>{{backendString}}</div>
   </template>
   
@@ -65,7 +65,7 @@
   const repeatpsw = ref('');
   const gender = ref('');
   const mode = ref('signin');
-  const backendString = ref('hej');
+  const backendString = ref('standard');
 
   // Define methods
   const toggleMode = () => {
@@ -76,10 +76,34 @@
     // Handle form submission here (e.g., send login request)
     console.log('Username:', username.value);
     console.log('Password:', password.value);
+    const formData = {
+    username: username.value,
+    password: password.value
+    };
+    fetch('http://127.0.0.1:5000/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Handle successful response from the backend
+      console.log('Login successful:', data);
+      // Redirect to dashboard or perform other actions as needed
+    })
+    .catch(error => {
+      console.error('Failed to sign in:', error.message);
+    });
+
+  
   };
 
   const handleSignup = () => {
     // Handle form submission here (e.g., send login request)
+    
+
     if (password.value !== repeatpsw.value) {
       console.log("Passwords didn't match");
     } else {

@@ -6,11 +6,13 @@ ToDo
 
 
 Dependencies:
-Flask
-Flask-Cors
 Vue.js
 Tailwind.css
-SQLite
+Flask
+Flask-Cors
+Mysql
+SQLAlchemy (python tool to connect to flask)
+
 
 
 
