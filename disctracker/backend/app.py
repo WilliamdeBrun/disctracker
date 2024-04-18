@@ -3,11 +3,13 @@ from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 
+db = SQLAlchemy()
+
 app = Flask(__name__)
 
 # Enable CORS for all origins. Needed, otherwise the frontend won't be able to access the backend.
 #CORS(app, origins='*', methods=['GET', 'POST', 'OPTIONS'], supports_credentials=True)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 # Configure SQLAlchemy to use MySQL
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Pass321@localhost/disctracker'  # Replace with your MySQL URI
@@ -16,22 +18,40 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Pass321@localhost/disctrac
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Create SQLAlchemy object
-db = SQLAlchemy(app)
 
+db.init_app(app)
 
 
 
 @app.route('/login', methods=['POST'])
-@cross_origin(origin='*')
 def login():
     # Declare the SQL query as text
     username = request.json.get('username')
     password = request.json.get('password')
-
-    query = text("SELECT username FROM users WHERE username = :username AND passwd = :password")
+    
+    query = text("SELECT * FROM users WHERE username = :username AND passwd = :password")
     
     # Execute the query
-    result = db.session.execute(query, username=username, passwd=password)
+    result = db.session.execute(query, {'username': username, 'password': password})
+    print(result)
+    # Fetch the result
+    row = result.fetchall()
+    print(row)
+    # Check if a row was found
+    
+    if username == row[0][2] and password == row[0][3]:
+        return 200
+    else:
+        return 'User not found'
+
+@app.route('/')
+def hello_world():
+
+    text1 = 'user1'
+    query = text("SELECT username FROM users WHERE username = '{}' AND passwd = 'root'".format(text1))
+    
+    # Execute the query
+    result = db.session.execute(query)
     print(result)
     # Fetch the result
     row = result.fetchone()
@@ -39,14 +59,10 @@ def login():
     # Check if a row was found
     if row:
         username = row[0]
-        return redirect(url_for('http://localhost:5173/dashboard'))
+        return username
     else:
         return 'User not found'
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
-
 
 if __name__ == '__main__':
-     app.run(host='0.0.0.0', port=8000, debug=True)
+     app.run(debug=True)

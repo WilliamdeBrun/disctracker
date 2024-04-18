@@ -4,7 +4,6 @@ import loginview from './views/loginview.vue';
 </script>
 
 <template>
-
   <div>
     <router-view /> <!-- This is where the router will render the appropriate component -->
   </div>

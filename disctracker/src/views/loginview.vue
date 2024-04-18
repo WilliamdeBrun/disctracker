@@ -57,6 +57,7 @@
   
   <script setup>
   import { ref, onMounted} from 'vue'
+  import { useRouter } from 'vue-router';
 
   // Define reactive variables
   const username = ref('');
@@ -81,25 +82,27 @@
     password: password.value
     };
     fetch('http://127.0.0.1:5000/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(formData)
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
     })
-    .then(response => response.json())
-    .then(data => {
-      // Handle successful response from the backend
-      console.log('Login successful:', data);
-      // Redirect to dashboard or perform other actions as needed
+    .then(response => {
+        if (response.ok) {
+            // Handle successful response from the backend
+            console.log('Login successful');
+            // Redirect to dashboard or perform other actions as needed
+            // try this -> router.push('/dashboard');
+            window.location.href = '/dashboard'; // Redirect to dashboard
+        } else {
+            throw new Error('Failed to sign in');
+        }
     })
     .catch(error => {
-      console.error('Failed to sign in:', error.message);
+        console.error('Failed to sign in:', error.message);
     });
-
-  
   };
-
   const handleSignup = () => {
     // Handle form submission here (e.g., send login request)
     
