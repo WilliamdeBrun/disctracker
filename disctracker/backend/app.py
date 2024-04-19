@@ -2,8 +2,11 @@ from flask import Flask, request, jsonify, redirect, url_for
 from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
+import jwt
+from datetime import datetime, timedelta
+from functools import wraps
 
-db = SQLAlchemy()
+
 
 app = Flask(__name__)
 
@@ -18,51 +21,128 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Pass321@localhost/disctrac
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Create SQLAlchemy object
+db = SQLAlchemy(app)
+#db.init_app(app)
 
-db.init_app(app)
+SECRET_KEY = 'my_precious'
 
+# decorator for verifying the JWT
+def token_required(f):
+    """Decorator to require a valid JWT token"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({'message': 'Token is missing'}), 401
+
+        try:
+            # Extract the token value (remove 'Bearer ' prefix if present)
+            if 'Bearer ' in token:
+                token = token.split(' ')[1]
+            # Decode and verify the token
+            decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            # You can perform additional checks here if needed
+        except jwt.ExpiredSignatureError:
+            return jsonify({'message': 'Token has expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'message': 'Invalid token'}), 401
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def generate_access_token(user_id):
+    """Generate a JWT access token for the given user ID"""
+    payload = {
+        'user_id': user_id,
+        'exp': datetime.utcnow() + timedelta(days=1)  # Token expiration time
+    }
+    token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+    print(token)
+    return token
+
+
+def get_user_by_password(username, password):
+    """Returns a user if password matches given username
+
+    Args:
+        username : Username to search
+        password : Password for username
+
+    Returns:
+        False if not found else the user
+    """
+    user = Users.query.filter_by(username=username, passwd=password).first()
+    if user:
+       
+        return user
+    else:
+        return False
 
 
 @app.route('/login', methods=['POST'])
 def login():
-    # Declare the SQL query as text
+    # Get username and password from request
     username = request.json.get('username')
     password = request.json.get('password')
     
-    query = text("SELECT * FROM users WHERE username = :username AND passwd = :password")
-    
-    # Execute the query
-    result = db.session.execute(query, {'username': username, 'password': password})
-    print(result)
-    # Fetch the result
-    row = result.fetchall()
-    print(row)
-    # Check if a row was found
-    
-    if username == row[0][2] and password == row[0][3]:
-        return 200
+    # Get user by username and password
+    user = get_user_by_password(username, password)
+    print(user)
+    # Check if user exists
+    if user:
+        # Generate and return access token along with user object
+        access_token = generate_access_token(user.id)
+        return jsonify({'message': 'Login successful', "access_token": access_token})
     else:
-        return 'User not found'
+        return jsonify({'message': 'User not found or incorrect password'}), 401  # Unauthorized
 
-@app.route('/')
-def hello_world():
+@app.route('/dashboard', methods=['GET'])
+@token_required
+def load_dashboard():
+    return jsonify({'message': 'Dashboard loaded successfully'}), 200
 
-    text1 = 'user1'
-    query = text("SELECT username FROM users WHERE username = '{}' AND passwd = 'root'".format(text1))
-    
-    # Execute the query
-    result = db.session.execute(query)
-    print(result)
-    # Fetch the result
-    row = result.fetchone()
-    print(row)
-    # Check if a row was found
-    if row:
-        username = row[0]
-        return username
-    else:
-        return 'User not found'
+
+
+class Users(db.Model):
+    """User model"""
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    realname = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    passwd = db.Column(db.String(255), nullable=False)
+    gender = db.Column(db.String(255), nullable=False)
+
+
+class Course(db.Model):
+    """Course model"""
+    courseid = db.Column(db.Integer, primary_key=True)
+    coursename = db.Column(db.String(255), nullable=False)
+    location = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+
+
+class Holes(db.Model):
+    """Hole model"""
+    holeid = db.Column(db.Integer, primary_key=True)
+    courseid = db.Column(db.Integer, db.ForeignKey('course.courseid'), nullable=False)
+    holenr = db.Column(db.Integer, nullable=False)
+    par = db.Column(db.Integer)
+    course = db.relationship('Course', backref=db.backref('holes', lazy=True))
+
+
+class Score(db.Model):
+    """Score model"""
+    scoreid = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    courseid = db.Column(db.Integer, db.ForeignKey('course.courseid'), nullable=False)
+    score = db.Column(db.Integer)
+    user = db.relationship('Users', backref=db.backref('score', lazy=True))
+    course = db.relationship('Course', backref=db.backref('score', lazy=True))
 
 
 if __name__ == '__main__':
      app.run(debug=True)
+
+
