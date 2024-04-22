@@ -12,7 +12,7 @@ Flask
 Flask-Cors
 Mysql
 SQLAlchemy (python tool to connect to flask)
-
+jwt (pip install PyJWT)
 
 
 

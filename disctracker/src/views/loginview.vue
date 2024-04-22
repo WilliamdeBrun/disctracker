@@ -56,7 +56,7 @@
   
   
   <script setup>
-  import { ref, onMounted} from 'vue'
+  import { ref, onMounted, inject} from 'vue'
   import { useRouter } from 'vue-router';
 
   // Define reactive variables
@@ -92,17 +92,29 @@
         if (response.ok) {
             // Handle successful response from the backend
             console.log('Login successful');
+            return response.json();
             // Redirect to dashboard or perform other actions as needed
             // try this -> router.push('/dashboard');
-            window.location.href = '/dashboard'; // Redirect to dashboard
+            // window.location.href = '/dashboard'; // Redirect to dashboard
         } else {
             throw new Error('Failed to sign in');
+        }
+    })
+    .then(data => {
+        // Check if login was successful and access token is provided
+        if (data) {
+            // Save the access token to local storage for future use
+            console.log(data.access_token);
+            localStorage.setItem('access_token', data.access_token);
+        } else {
+            throw new Error('Access token not provided');
         }
     })
     .catch(error => {
         console.error('Failed to sign in:', error.message);
     });
   };
+
   const handleSignup = () => {
     // Handle form submission here (e.g., send login request)
     
@@ -115,16 +127,6 @@
     }
   };
   onMounted(async () => {
-  try {
-    const response = await fetch('http://127.0.0.1:5000/');
-    if (!response.ok) {
-      throw new Error('Failed to fetch data from backend');
-    }
-    const data = await response.text();
-    backendString.value = data;
-  } catch (error) {
-    console.error('Error fetching data from backend:', error);
-  }
  });
 </script>
 
