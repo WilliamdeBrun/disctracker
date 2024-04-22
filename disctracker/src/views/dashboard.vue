@@ -70,7 +70,9 @@
   import settings from './settings.vue'
   import tournament from './tournament.vue'
 
+  const sidebarOn = ref('false');
 
+  
   // Define reactive variables
   const username = ref('');
 
@@ -110,6 +112,9 @@
   const dbHeader = ref('Home');
   const updateDashboard = (text) => {
     dbHeader.value = text; 
+  };
+  const toggleSb = () => {
+  sidebarOn.value = !sidebarOn.value;
   };
 </script>
 
