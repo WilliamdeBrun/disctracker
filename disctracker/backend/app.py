@@ -25,15 +25,18 @@ db = SQLAlchemy(app)
 #db.init_app(app)
 
 SECRET_KEY = 'my_precious'
+app.config['SECRET_KEY'] = SECRET_KEY
 
 # decorator for verifying the JWT
 def token_required(f):
     """Decorator to require a valid JWT token"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        
         token = request.headers.get('Authorization')
         if not token:
-            return jsonify({'message': 'Token is missing'}), 401
+            return redirect(url_for('login'))
+            #return jsonify({'message': 'Token is missing'}), 401
 
         try:
             # Extract the token value (remove 'Bearer ' prefix if present)
@@ -41,11 +44,15 @@ def token_required(f):
                 token = token.split(' ')[1]
             # Decode and verify the token
             decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+           
+            
             # You can perform additional checks here if needed
         except jwt.ExpiredSignatureError:
-            return jsonify({'message': 'Token has expired'}), 401
+            return redirect(url_for('login'))
+            #return jsonify({'message': 'Token has expired'}), 401
         except jwt.InvalidTokenError:
-            return jsonify({'message': 'Invalid token'}), 401
+            return redirect(url_for('login'))
+            #return jsonify({'message': 'Invalid token'}), 401
 
         return f(*args, **kwargs)
 

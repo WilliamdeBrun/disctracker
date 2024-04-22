@@ -80,13 +80,30 @@
     
   };
   onMounted(async () => {
-  
- });
- const dbHeader = ref('Home');
- const updateDashboard = (text) => {
+    fetch('http://localhost:5000/dashboard', {
+    method: 'GET',
+    headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+    }
+    })
+    .then(response => {
+        if (response.ok) {
+          // Token is valid, allow access to the dashboard
+          // Render the dashboard component or navigate to the dashboard route
+        } else {
+          // Token is invalid or missing, redirect to the login page
+          window.location.href = '/';
+        }
+    })
+    .catch(error => {
+        console.error('Failed to check token:', error);
+    });
+      
+  });
+  const dbHeader = ref('Home');
+  const updateDashboard = (text) => {
     dbHeader.value = text; 
-  
- }
+  };
 </script>
 
 <style>

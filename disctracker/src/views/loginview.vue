@@ -106,23 +106,6 @@
             // Save the access token to local storage for future use
             console.log(data.access_token);
             localStorage.setItem('access_token', data.access_token);
-            fetch('http://127.0.0.1:5000/dashboard', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Handle successful response from the dashboard endpoint
-                    // window.location.href = '/dashboard';
-                } else {
-                    throw new Error('Failed to load dashboard');
-                }
-            })
-            .catch(error => {
-                console.error('Failed to load dashboard:', error.message);
-            });
         } else {
             throw new Error('Access token not provided');
         }
@@ -144,16 +127,6 @@
     }
   };
   onMounted(async () => {
-  /*try {
-    const response = await fetch('http://127.0.0.1:5000/');
-    if (!response.ok) {
-      throw new Error('Failed to fetch data from backend');
-    }
-    const data = await response.text();
-    backendString.value = data;
-  } catch (error) {
-    console.error('Error fetching data from backend:', error);
-  }*/
  });
 </script>
 
