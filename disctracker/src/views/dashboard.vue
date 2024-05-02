@@ -43,11 +43,12 @@
   <div class="flex-1 flex flex-col justify-top items-center relative">
     <h1 class="text-5xl text-white font-bold">{{ dbHeader }}</h1>
     <div class="flex justify-center items-start w-full h-full">
-      <home v-if="dbHeader === 'Home'"/>
+      <home @myEvent="updateDashboard('Courses')" v-if="dbHeader === 'Home'"/>
+      <round v-if="dbHeader === 'Round'"/>
       <profile v-else-if="dbHeader === 'Profile'"/>
       <leaderboard v-else-if="dbHeader === 'Leaderboard'"/>
       <tournament v-else-if="dbHeader === 'Tournament'"/>
-      <courses v-else-if="dbHeader === 'Courses'" />
+      <courses @myEvent="updateDashboard('Round')" v-else-if="dbHeader === 'Courses'" />
       <settings v-else-if="dbHeader === 'Settings'"/>
     </div>
   </div>
@@ -55,7 +56,6 @@
 
   
 </div>
-
 </template>
   
   
@@ -69,7 +69,7 @@
   import profile from './profile.vue'
   import settings from './settings.vue'
   import tournament from './tournament.vue'
-
+  import round from './round.vue'
   const sidebarOn = ref('false');
 
   
@@ -116,6 +116,7 @@
   const toggleSb = () => {
   sidebarOn.value = !sidebarOn.value;
   };
+
 </script>
 
 <style>

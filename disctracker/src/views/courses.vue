@@ -25,7 +25,7 @@
                 </template>
             </div>
             <div>
-                <button @click="startRound()" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-sm ml-2">Start new round</button>
+                <button @click="$emit('myEvent')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-sm ml-2">Start new round</button>
                 
             </div>
             
@@ -54,12 +54,9 @@
                 </template>
             </div>
             <div>
-                <button @click="startRound()" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-sm ml-2">Start new round</button>
-                
+                <button  @click="$emit('myEvent')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-sm ml-2">Start new round</button>
             </div>
-            
         </div>
-           
     </div>
 </template>
   
