@@ -48,8 +48,9 @@
       <profile v-else-if="dbHeader === 'Profile'"/>
       <leaderboard v-else-if="dbHeader === 'Leaderboard'"/>
       <tournament v-else-if="dbHeader === 'Tournament'"/>
-      <courses @myEvent="updateDashboard('Round')" v-else-if="dbHeader === 'Courses'" />
+      <courses @startEvent="updateDashboard('Startround', $event)" v-else-if="dbHeader === 'Courses'" />
       <settings v-else-if="dbHeader === 'Settings'"/>
+      <startround :course="course" v-else-if="dbHeader === 'Startround'"/>
     </div>
   </div>
 
@@ -69,7 +70,8 @@
   import profile from './profile.vue'
   import settings from './settings.vue'
   import tournament from './tournament.vue'
-  import round from './round.vue'
+  import startround from './startround.vue'
+
   const sidebarOn = ref('false');
 
   
@@ -110,8 +112,12 @@
       
   });
   const dbHeader = ref('Home');
-  const updateDashboard = (text) => {
+  const course = ref('');
+  const updateDashboard = (text, courseName) => {
+    console.log(courseName);
     dbHeader.value = text; 
+    course.value = courseName;
+      
   };
   const toggleSb = () => {
   sidebarOn.value = !sidebarOn.value;
