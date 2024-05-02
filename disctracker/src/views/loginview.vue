@@ -112,6 +112,7 @@
         if (response.ok) {
             // Handle successful response from the backend
             console.log('Signup successful');
+            handleSignin();
             return response.json();
             // Redirect to dashboard or perform other actions as needed
             // try this -> router.push('/dashboard');
