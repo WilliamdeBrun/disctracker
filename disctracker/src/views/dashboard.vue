@@ -50,7 +50,7 @@
       <tournament v-else-if="dbHeader === 'Tournament'"/>
       <courses @startEvent="updateDashboard('Startround', $event)" v-else-if="dbHeader === 'Courses'" />
       <settings v-else-if="dbHeader === 'Settings'"/>
-      <startround :course="course" v-else-if="dbHeader === 'Startround'"/>
+      <startround @playEvent="updateDashboard('Round')" :course="course" v-else-if="dbHeader === 'Startround'"/>
     </div>
   </div>
 
@@ -71,6 +71,7 @@
   import settings from './settings.vue'
   import tournament from './tournament.vue'
   import startround from './startround.vue'
+  import round from './round.vue'
 
   const sidebarOn = ref('false');
 
