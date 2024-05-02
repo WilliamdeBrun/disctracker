@@ -105,6 +105,29 @@ def login():
     else:
         return jsonify({'message': 'User not found or incorrect password'}), 401  # Unauthorized
 
+
+@app.route('/register', methods=['POST'])
+def register():
+    # Get user details from request
+    username = request.json.get('username')
+    realname = request.json.get('realname')
+    email = request.json.get('email')
+    passwd = request.json.get('passwd')
+    gender = request.json.get('gender')
+
+    # Check if user already exists
+    user = Users.query.filter_by(username=username).first()
+    if user:
+        return jsonify({'message': 'User already exists'}), 409
+    
+    # Create new user
+    new_user = Users(username=username, realname=realname, email=email, passwd=passwd, gender=gender)
+    db.session.add(new_user)
+    db.session.commit()
+    
+
+    return jsonify({'message': 'User created successfully'}), 201
+
 @app.route('/dashboard', methods=['GET'])
 @token_required
 def load_dashboard():
