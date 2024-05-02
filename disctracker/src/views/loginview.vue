@@ -106,7 +106,7 @@
             // Save the access token to local storage for future use
             console.log(data.access_token);
             localStorage.setItem('access_token', data.access_token);
-            window.location.href = '/dashboard';
+            window.location.href = '/dashboard'; // Redirect to dashboard
         } else {
             throw new Error('Access token not provided');
         }

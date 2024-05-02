@@ -110,7 +110,10 @@ def login():
 def load_dashboard():
     return jsonify({'message': 'Dashboard loaded successfully'}), 200
 
-
+@app.route('/getuser', methods=['GET'])
+@token_required
+def load_user():
+    return jsonify({'message': 'Dashboard loaded successfully'}), 200
 
 class Users(db.Model):
     """User model"""

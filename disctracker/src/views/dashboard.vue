@@ -43,7 +43,8 @@
   <div class="flex-1 flex flex-col justify-top items-center relative">
     <h1 class="text-5xl text-white font-bold">{{ dbHeader }}</h1>
     <div class="flex justify-center items-start w-full h-full">
-      <home v-if="dbHeader === 'Home'"/>
+      <home @myEvent="updateDashboard('Courses')" v-if="dbHeader === 'Home'"/>
+      <round v-if="dbHeader === 'Round'"/>
       <profile v-else-if="dbHeader === 'Profile'"/>
       <leaderboard v-else-if="dbHeader === 'Leaderboard'"/>
       <tournament v-else-if="dbHeader === 'Tournament'"/>
@@ -56,7 +57,6 @@
 
   
 </div>
-
 </template>
   
   
@@ -122,6 +122,7 @@
   const toggleSb = () => {
   sidebarOn.value = !sidebarOn.value;
   };
+
 </script>
 
 <style>
