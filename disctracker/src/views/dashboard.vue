@@ -35,6 +35,10 @@
         <i class="fa fa-cog text-white mr-2"></i>
         <p class="text-white">Settings</p>
       </div>
+      <div class="hover:bg-sky-400 cursor-pointer rounded-lg p-2 mt-2 flex items-center" @click="signOut()">
+        <i class="fa fa-sign-out text-white mr-2"></i>
+        <p class="text-white">Sign out</p>
+      </div>
     </div>
   </div> 
   <button @click="toggleSb" class="absolute top-0 left-0 mt-4 ml-4 text-white z-20 hover:bg-sky-400 cursor-pointer rounded-lg p-2 flex items-center justify-center">
@@ -122,6 +126,10 @@
   };
   const toggleSb = () => {
   sidebarOn.value = !sidebarOn.value;
+  };
+  const signOut = () => {
+    localStorage.removeItem('access_token');
+    location.reload();
   };
 
 </script>
