@@ -1,9 +1,9 @@
 <template>
    
    <div class="flex flex-col justify-top items-center h-full w-full">
-        <div class="w-1/2 h-1/4 bg-sky-300 bg-opacity-50 rounded-lg mt-20">
-            <h2 class="text-white text-3xl font-bold ml-2">Rydskogen DGC</h2>
-            <div class="grid grid-cols-9 mt-4 mr-2 ml-2">
+        <div class="w-1/2 h-1/4 bg-slate-900 bg-opacity-90 rounded-lg mt-20">
+            <h2 class="text-white text-md md:text-xl lg:text-3xl font-bold ml-2">Rydskogen DGC</h2>
+            <div class="grid grid-cols-9 mt-2 mr-2 ml-2">
                 <template v-for="num in 9" :key="`box-${num}`">
                     <div class="box bg-green-500 text-black flex justify-center items-center rounded border border-black w-full">{{ num }}</div>
                 </template>
@@ -25,14 +25,15 @@
                 </template>
             </div>
             <div>
-                <button @click="startRound()" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-sm ml-2">Start new round</button>
+                <button @click="$emit('startEvent', 'Rydskogen DGC')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-xs md:text-xs lg:text-sm ml-2">Start Round</button>
+                
                 
             </div>
             
         </div>
-        <div class="w-1/2 h-1/4 bg-sky-300 bg-opacity-50 rounded-lg mt-20">
-            <h2 class="text-white text-3xl font-bold ml-2">Hammaren DiscGolfPark</h2>
-            <div class="grid grid-cols-9 mt-4 mr-2 ml-2">
+        <div class="w-1/2 h-1/4 bg-slate-900 bg-opacity-90 rounded-lg mt-20">
+            <h2 class="text-white text-md md:text-xl lg:text-3xl font-bold ml-2">Hammaren DiscGolfPark</h2>
+            <div class="grid grid-cols-9 mt-2 mr-2 ml-2">
                 <template v-for="num in 9" :key="`box-${num}`">
                     <div class="box bg-green-500 text-black flex justify-center items-center rounded border border-black w-full">{{ num }}</div>
                 </template>
@@ -54,7 +55,8 @@
                 </template>
             </div>
             <div>
-                <button @click="startRound()" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-sm ml-2">Start new round</button>
+                <button @click="$emit('startEvent', 'Hammarens DiscGolfPark')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-xs md:text-xs lg:text-sm ml-2">Start Round</button>
+                
                 
             </div>
             
@@ -81,9 +83,6 @@
   onMounted(async () => {
   
  });
- const startRound = () => {
-    alert("lets roll!");
- };
  
  
 </script>
