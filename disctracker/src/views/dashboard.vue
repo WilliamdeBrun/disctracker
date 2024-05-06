@@ -35,6 +35,10 @@
         <i class="fa fa-cog text-white mr-2"></i>
         <p class="text-white">Settings</p>
       </div>
+      <div class="hover:bg-sky-400 cursor-pointer rounded-lg p-2 mt-2 flex items-center" @click="updateDashboard('Friends')">
+        <i class="fa fa-users text-white mr-2"></i>
+        <p class="text-white">Friends</p>
+      </div>
       <div class="hover:bg-sky-400 cursor-pointer rounded-lg p-2 mt-2 flex items-center" @click="signOut()">
         <i class="fa fa-sign-out text-white mr-2"></i>
         <p class="text-white">Sign out</p>
@@ -55,6 +59,7 @@
       <courses @startEvent="updateDashboard('Startround', $event)" v-else-if="dbHeader === 'Courses'" />
       <settings v-else-if="dbHeader === 'Settings'"/>
       <startround @playEvent="updateDashboard('Round')" :course="course" v-else-if="dbHeader === 'Startround'"/>
+      <friends v-else-if="dbHeader === 'Friends'"/>
     </div>
   </div>
 
@@ -76,6 +81,7 @@
   import tournament from './tournament.vue'
   import startround from './startround.vue'
   import round from './round.vue'
+  import friends from './friends.vue'
 
   const sidebarOn = ref('false');
 
@@ -122,6 +128,7 @@
     console.log(courseName);
     dbHeader.value = text; 
     course.value = courseName;
+    toggleSb();
       
   };
   const toggleSb = () => {
