@@ -45,6 +45,7 @@ def token_required(f):
             # Decode and verify the token
             decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
            
+            uid = decoded_token['user_id']
             
             # You can perform additional checks here if needed
         except jwt.ExpiredSignatureError:
@@ -54,7 +55,7 @@ def token_required(f):
             return redirect(url_for('login'))
             #return jsonify({'message': 'Invalid token'}), 401
 
-        return f(*args, **kwargs)
+        return f(uid, *args, **kwargs)
 
     return decorated_function
 
@@ -128,15 +129,39 @@ def register():
 
     return jsonify({'message': 'User created successfully'}), 201
 
+@app.route('/addfriend', methods=['POST'])
+@token_required
+def add_friend(uid):
+    # Get user details from request
+    playername = request.json.get('playername')
+
+    # Check if user already exists
+    player = Users.query.filter_by(username=playername).first()
+    if not player:
+        return jsonify({'message': 'User doesnt exist'}), 409
+    
+    # Create new user
+    friendship = Friends.query.filter_by(uid1=uid, uid2=player.id).first()
+    if friendship:
+        return jsonify({'message': 'Friendship already exists'}), 409
+    new_friend = Friends(uid1=uid, uid2=player.id)
+    db.session.add(new_friend)
+    db.session.commit()
+    
+
+    return jsonify({'message': 'Friendship created successfully'}), 201
+
 @app.route('/dashboard', methods=['GET'])
 @token_required
-def load_dashboard():
+def load_dashboard(uid):
     return jsonify({'message': 'Dashboard loaded successfully'}), 200
 
 @app.route('/getuser', methods=['GET'])
 @token_required
-def load_user():
+def load_user(uid):
     return jsonify({'message': 'Dashboard loaded successfully'}), 200
+
+
 
 class Users(db.Model):
     """User model"""
@@ -147,7 +172,21 @@ class Users(db.Model):
     passwd = db.Column(db.String(255), nullable=False)
     gender = db.Column(db.String(255), nullable=False)
 
+class Friends(db.Model):
+    """Friends model"""
+    friendshipid = db.Column(db.Integer, primary_key=True)
+    uid1 = db.Column(db.Integer, nullable=False)
+    uid2 = db.Column(db.Integer, nullable=False)
 
+    # Define foreign key constraints
+    __table_args__ = (
+        db.ForeignKeyConstraint(['uid1'], ['users.id']),
+        db.ForeignKeyConstraint(['uid2'], ['users.id']),
+        db.UniqueConstraint('uid1', 'uid2', name='unique_friendship'),
+        db.CheckConstraint('uid1 <> uid2', name='check_different_users'),
+    )
+
+    
 class Course(db.Model):
     """Course model"""
     courseid = db.Column(db.Integer, primary_key=True)
