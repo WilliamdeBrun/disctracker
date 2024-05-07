@@ -73,7 +73,6 @@ def generate_access_token(user_id):
 
 def get_user_by_password(username, password):
     """Returns a user if password matches given username
-
     Args:
         username : Username to search
         password : Password for username
@@ -83,7 +82,6 @@ def get_user_by_password(username, password):
     """
     user = Users.query.filter_by(username=username, passwd=password).first()
     if user:
-       
         return user
     else:
         return False
@@ -166,6 +164,7 @@ def get_friends(uid):
 
     return jsonify({'friends': friends_names, 'message': 'Friends returned'}), 201
 
+
 @app.route('/changepw', methods=['POST'])
 @token_required
 def change_pw(uid):
@@ -184,6 +183,27 @@ def change_pw(uid):
     db.session.commit()
 
     return jsonify({'message': 'Password changed'}), 201
+
+
+@app.route('/savescoreonhole', methods=['POST'])
+@token_required
+def save_score(uid):
+    # Get user details from request
+    course = request.json.get('course_name')
+    score = request.json.get('score')
+    hole_number = request.json.get('hole_number')
+    courseid = Course.query.filter_by(coursename=course).first()
+    hole = Holes.query.filter_by(courseid=courseid.id, holenr=hole_number).first()
+    if not hole:
+        return jsonify({'message': 'Invalid hole number'}), 409
+
+    # Create new score
+    new_score = Score(uid=uid, courseid=courseid.id, holeid=hole.holeid, score=score)
+    db.session.add(new_score)
+    db.session.commit()
+
+    return jsonify({'message': 'Score created successfully'}), 201
+
 
 @app.route('/dashboard', methods=['GET'])
 @token_required

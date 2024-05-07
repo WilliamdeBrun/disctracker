@@ -15,7 +15,7 @@
                 <div v-for="index in 4" :key="index" class="mb-2">
                     <input type="text" class="border border-gray-300 rounded px-4 py-2 w-64" v-model="players[index - 1]" :placeholder="'Player ' + index + ' name'">
                 </div>
-                <button @click="$emit('playEvent')" type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <button @click="$emit('playEvent', players)" type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Start Round
                 </button>
             </form>   
