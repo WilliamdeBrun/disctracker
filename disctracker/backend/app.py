@@ -135,21 +135,36 @@ def add_friend(uid):
     # Get user details from request
     playername = request.json.get('playername')
 
-    # Check if user already exists
     player = Users.query.filter_by(username=playername).first()
     if not player:
-        return jsonify({'message': 'User doesnt exist'}), 409
+        return jsonify({'message': 'nouser'}), 409
     
-    # Create new user
+    # Create new friendship
     friendship = Friends.query.filter_by(uid1=uid, uid2=player.id).first()
     if friendship:
-        return jsonify({'message': 'Friendship already exists'}), 409
+        return jsonify({'message': 'friends'}), 409
     new_friend = Friends(uid1=uid, uid2=player.id)
     db.session.add(new_friend)
     db.session.commit()
     
 
     return jsonify({'message': 'Friendship created successfully'}), 201
+
+@app.route('/getfriends', methods=['GET'])
+@token_required
+def get_friends(uid):
+    
+    friends = Friends.query.filter((Friends.uid1==uid) | (Friends.uid2==uid) ).all()
+    
+    friends_names = []
+    for friend in friends:
+        if friend.uid1 == uid:
+            friends_names.append(Users.query.get(friend.uid2).username)
+        else:
+            friends_names.append(Users.query.get(friend.uid1).username)
+    
+
+    return jsonify({'friends': friends_names, 'message': 'Friends returned'}), 201
 
 @app.route('/dashboard', methods=['GET'])
 @token_required
