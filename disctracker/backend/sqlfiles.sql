@@ -3,6 +3,7 @@ ALTER TABLE holes DROP FOREIGN KEY fk_course;
 ALTER TABLE friends DROP FOREIGN KEY fk_user1;
 ALTER TABLE friends DROP FOREIGN KEY fk_user2;
 ALTER TABLE score DROP FOREIGN KEY fk_user;
+ALTER TABLE score DROP FOREIGN KEY fk_hole;
 ALTER TABLE score DROP FOREIGN KEY fk_course_score;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS friends;
@@ -57,8 +58,11 @@ CREATE TABLE score (
     scoreid INT AUTO_INCREMENT PRIMARY KEY,
     uid INT NOT NULL,
     courseid INT NOT NULL,
+    holeid INT NOT NULL,
     score INT,
+    CONSTRAINT fk_hole FOREIGN KEY (holeid) REFERENCES holes(holeid),
     CONSTRAINT fk_user FOREIGN KEY (uid) REFERENCES users(id),
     CONSTRAINT fk_course_score FOREIGN KEY (courseid) REFERENCES course(courseid)
 );
 
+# select * from users;

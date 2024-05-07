@@ -52,13 +52,13 @@
     <h1 class="text-5xl text-white font-bold">{{ dbHeader }}</h1>
     <div class="flex justify-center items-start w-full h-full">
       <home @myEvent="updateDashboard('Courses')" v-if="dbHeader === 'Home'"/>
-      <round v-if="dbHeader === 'Round'"/>
+      <round v-if="dbHeader === 'Round'" :players="players" :course="course" />
       <profile v-else-if="dbHeader === 'Profile'"/>
       <leaderboard v-else-if="dbHeader === 'Leaderboard'"/>
       <tournament v-else-if="dbHeader === 'Tournament'"/>
-      <courses @startEvent="updateDashboard('Startround', $event)" v-else-if="dbHeader === 'Courses'" />
+      <courses @startEvent="updateDashboard('Startround', $event)"  v-else-if="dbHeader === 'Courses'" />
       <settings v-else-if="dbHeader === 'Settings'"/>
-      <startround @playEvent="updateDashboard('Round')" :course="course" v-else-if="dbHeader === 'Startround'"/>
+      <startround @playEvent="updateDashboard('Round', '', $event)" :course="course" v-else-if="dbHeader === 'Startround'"/>
       <friends v-else-if="dbHeader === 'Friends'"/>
     </div>
   </div>
@@ -120,16 +120,18 @@
     .catch(error => {
         console.error('Failed to check token:', error);
     });
-      
   });
   const dbHeader = ref('Home');
   const course = ref('');
-  const updateDashboard = (text, courseName) => {
+  const players = ref(['', '', '', '']);
+  const updateDashboard = (text, courseName, player) => {
     console.log(courseName);
-    dbHeader.value = text; 
-    course.value = courseName;
-    toggleSb();
-      
+    dbHeader.value = text;
+    if (courseName != ''){
+      course.value = courseName;
+    } 
+    players.value = player;
+    toggleSb(); 
   };
   const toggleSb = () => {
   sidebarOn.value = !sidebarOn.value;
