@@ -4,7 +4,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
-<div class="w-full flex h-screen relative">
+<div :class="{ 'dark': isDarkmode }">
+  <div :class="{ 'dark-mode': isDarkmode }" class="w-full flex h-screen relative">
   <div class="bg-my bg-cover bg-center blur-lg w-full h-screen absolute"></div>
   <div :class="{ 'translate-x-0': sidebarOn, '-translate-x-full': !sidebarOn }" class="sidebar w-60 h-screen bg-slate-900 absolute transition-transform z-10">
     <div class="mb-2 mt-2">
@@ -31,10 +32,6 @@
         <i class="fa fa-flag text-white mr-2"></i>
         <p class="text-white">Courses</p>
       </div>
-      <div class="hover:bg-sky-400 cursor-pointer rounded-lg p-2 mt-2 flex items-center" @click="updateDashboard('Settings')">
-        <i class="fa fa-cog text-white mr-2"></i>
-        <p class="text-white">Settings</p>
-      </div>
       <div class="hover:bg-sky-400 cursor-pointer rounded-lg p-2 mt-2 flex items-center" @click="updateDashboard('Friends')">
         <i class="fa fa-users text-white mr-2"></i>
         <p class="text-white">Friends</p>
@@ -42,6 +39,13 @@
       <div class="hover:bg-sky-400 cursor-pointer rounded-lg p-2 mt-2 flex items-center" @click="signOut()">
         <i class="fa fa-sign-out text-white mr-2"></i>
         <p class="text-white">Sign out</p>
+      </div>
+      <div @click="toggleDarkMode" class="hover:bg-sky-400 cursor-pointer rounded-lg p-2 mt-2 flex items-center">
+        <!-- Sun icon for light mode, Moon icon for dark mode -->
+        <i v-if="isDarkmode" class="fa fa-sun-o mr-2 text-white"></i>
+        <i v-else class="fa fa-moon-o mr-2 text-white"></i>
+        <p v-if="!isDarkmode" class=" text-white">Dark Mode</p>
+        <p v-else class="mr-2 text-white">Light Mode</p>
       </div>
     </div>
   </div> 
@@ -57,11 +61,12 @@
       <leaderboard v-else-if="dbHeader === 'Leaderboard'"/>
       <tournament v-else-if="dbHeader === 'Tournament'"/>
       <courses @startEvent="updateDashboard('Startround', $event)"  v-else-if="dbHeader === 'Courses'" />
-      <settings v-else-if="dbHeader === 'Settings'"/>
       <startround @playEvent="updateDashboard('Round', '', $event)" :course="course" v-else-if="dbHeader === 'Startround'"/>
       <friends v-else-if="dbHeader === 'Friends'"/>
     </div>
   </div>
+</div>
+
 
 
   
@@ -77,7 +82,6 @@
   import courses from './courses.vue'
   import leaderboard from './leaderboard.vue'
   import profile from './profile.vue'
-  import settings from './settings.vue'
   import tournament from './tournament.vue'
   import startround from './startround.vue'
   import round from './round.vue'
@@ -88,6 +92,7 @@
   
   // Define reactive variables
   const username = ref('');
+  const isDarkmode = ref(localStorage.getItem('darkModeState') === 'true');
 
   // Define methods
   const toggleMode = () => {
@@ -140,10 +145,18 @@
     localStorage.removeItem('access_token');
     location.reload();
   };
+  const toggleDarkMode = () => {
+    isDarkmode.value = !isDarkmode.value;
+    localStorage.setItem('darkModeState', isDarkmode.value);
+    toggleSb();
+  };
 
 </script>
 
 <style>
 /* Add your custom styles here */
+.dark-mode{
+  filter: brightness(0.5);
+}
 </style>
   

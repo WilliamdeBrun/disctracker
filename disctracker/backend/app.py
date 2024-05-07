@@ -165,6 +165,26 @@ def get_friends(uid):
     return jsonify({'friends': friends_names, 'message': 'Friends returned'}), 201
 
 
+@app.route('/changepw', methods=['POST'])
+@token_required
+def change_pw(uid):
+    user = Users.query.get(uid)
+    old_pw = request.json.get('old_pw')
+    new_pw = request.json.get('new_pw')
+    repeat_pw = request.json.get('repeat_pw')
+    if not user:
+        return jsonify({'message': 'User not found'}), 409
+    if old_pw != user.passwd:
+        return jsonify({'message': 'Invalid password'}), 400
+    if new_pw != repeat_pw:
+        return jsonify({'message': 'Passwords did not match'}), 400
+
+    user.passwd = new_pw
+    db.session.commit()
+
+    return jsonify({'message': 'Password changed'}), 201
+
+
 @app.route('/savescoreonhole', methods=['POST'])
 @token_required
 def save_score(uid):
@@ -183,6 +203,7 @@ def save_score(uid):
     db.session.commit()
 
     return jsonify({'message': 'Score created successfully'}), 201
+
 
 @app.route('/dashboard', methods=['GET'])
 @token_required
