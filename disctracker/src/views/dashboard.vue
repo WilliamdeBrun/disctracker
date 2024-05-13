@@ -136,11 +136,19 @@
       course.value = courseName;
     } 
     players.value = player;
-    toggleSb(); 
+    toggleSb1(); 
   };
   const toggleSb = () => {
-  sidebarOn.value = !sidebarOn.value;
+    console.log(sidebarOn.value);
+    sidebarOn.value = !sidebarOn.value;
   };
+  const toggleSb1 = () => {
+    if(sidebarOn.value){
+      console.log(sidebarOn.value);
+      sidebarOn.value = !sidebarOn.value;
+    }
+  };  
+
   const signOut = () => {
     localStorage.removeItem('access_token');
     location.reload();
