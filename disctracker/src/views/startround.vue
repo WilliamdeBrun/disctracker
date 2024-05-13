@@ -13,20 +13,21 @@
                     </select>
                 </div>
                 <div v-for="index in numOfFriends" :key="index" class="mb-2">
-                    <input type="text" class="border border-gray-300 rounded px-4 py-2 w-64" v-model="players[index - 1]" :placeholder="'Player ' + index + ' name'">
-                    <ul>
-                        <li v-for="(friend, index) in friends" :key="index" class="text-white text-md md:text-md lg:text-xl font-bold">{{ friend }}</li>
+                    <input type="text" class="border border-gray-300 rounded px-4 py-2 w-64" v-model="players[index - 1]" :placeholder="'Player ' + index + ' name'" @input="selectSuggestion(players[index-1])" @click="swithIndex(index-1)">
+                    <ul class=" bg-slate-500 rounded-b-lg bg-opacity-30">
+                        <li v-if="(numOfFriends === newindex ? index === numOfFriends+1 : index === newindex+1)" v-for="(friend, index1) in filteredFriends" :key="index1" @click="selected(friend), selectSuggestion(players[index-1])" class="text-white text-md md:text-md lg:text-xl font-bold text-center">{{ friend }}</li>
                     </ul>
                 </div>
                 <button @click="addNumofPlayers()" type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Add friend
+                    Add player
                 </button>
-                
-            </form>   
-            <button @click="$emit('playEvent', players)" type="submit" class=" mt-5 bg-green-300 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <button @click="$emit('playEvent', players)" type="submit" class=" ml-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Start round
             </button>
+            </form>   
+           
          </div>
+         
      </div>
  </template>
    
@@ -35,22 +36,52 @@
    
    <script setup>
    import { ref, onMounted} from 'vue'
-   
+
    // Define reactive variables
    const numOfFriends = ref(0); 
-   const addNumofPlayers = () => {
-    if (numOfFriends.value < 4){
-        numOfFriends.value = numOfFriends.value+1;
-    }
-    
-   }
+   const newindex = ref(0);
    const players = ref(['', '', '', '']);
    const coursePath = ref('');
    const friends = ref([]);
+   const filteredFriends = ref([]);
    const props = defineProps({
     course: String,
    });
 
+   const addNumofPlayers = () => {
+    if (numOfFriends.value < 4){
+        numOfFriends.value = numOfFriends.value+1;
+    }
+   }
+
+   const swithIndex = (index) => {
+    newindex.value = index;
+   }
+
+   const selected = (friend) => {
+    
+    if (newindex.value != numOfFriends.value){
+        players.value.splice(newindex.value, 1, friend);
+    }
+    else{
+        players.value.splice(numOfFriends.value-1, 1,friend);
+    }
+       
+   }
+
+   const selectSuggestion = (suggestion) => {
+    
+    const filtered = friends.value.filter(friend => {
+        return friend.toLowerCase().includes(suggestion.toLowerCase());
+    });
+  
+    filteredFriends.value = filtered;
+    if(filteredFriends.value.length === 1){
+        
+        filteredFriends.value = [];
+    } 
+
+   };
   
   onMounted(async () => {
     fetch('http://127.0.0.1:5000/getfriends', {
