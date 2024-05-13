@@ -37,7 +37,19 @@
                     <Doughnut :options="coursesOpt" :data="coursesData" />
                 </div>
             </div>
+            <div class="w-1/3 h-full bg-slate-900 bg-opacity-90 rounded-lg mr-10 flex flex-col items-center">
+            <h2 class="text-white text-md md:text-md lg:text-3xl font-bold ml-3">Change Password</h2>
+            <div class="flex flex-col items-center w-2/3">
+                <input type="password" v-model="oldPw" class="border rounded py-2 ml-2 mt-5 mr-2 w-2/3 h-1/4 text-center" placeholder="Enter old password" required>
+                <input type="password" v-model="newPw" class="border rounded py-2 ml-2 mt-3 mr-2 w-2/3 h-1/4 text-center" placeholder="Enter new password" required>
+                <input type="password" v-model="repeatPw" class="border rounded py-2 ml-2 mt-3 mr-2 w-2/3 h-1/4 text-center" placeholder="Repeat new password" required>
+                <button @click="changePw" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 border border-gray-400 rounded shadow text-sm ml-2 mt-3">Change Password</button>
+                <p v-if="passwordChange === 'success'" class="text-green-500 mt-2 ml-2">{{ passwordMessage }}</p>  
+                <p v-else-if="passwordChange === 'fail'" class="text-red-500 mt-2 ml-2">{{ passwordMessage }}</p> 
+            </div>
         </div>
+        </div>
+        
            
     </div>   
 
@@ -51,11 +63,51 @@
   import { Bar, Doughnut } from 'vue-chartjs'
   import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement } from 'chart.js'
   // Define reactive variables
-  const username = ref('');
+  const passwordChange = ref('');
+  const oldPw = ref('');
+  const newPw = ref('');
+  const repeatPw = ref('');
+  const passwordMessage = ref('');
  // Ensure Chart.js plugins are registered
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement);
 
 // Define reactive variables
+const changePw = () =>{
+  const data = {
+    old_pw: oldPw.value,
+    new_pw: newPw.value,
+    repeat_pw: repeatPw.value
+  };
+  fetch('http://127.0.0.1:5000/changepw', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (response.ok) {
+            passwordChange.value = 'success';
+            return response.json();
+        }    
+         else {
+          passwordChange.value = 'fail';
+          return response.json().then(error=>{
+            throw new Error(error.message);
+          });
+        }
+    })
+    .then(data => {
+        console.log(data.message);
+        passwordMessage.value = data.message;
+    })
+    .catch(error => {
+        console.error('PW changing error:', error.message);
+        passwordMessage.value = error.message;
+    });
+
+};
 const avgParData = ref({
   labels: ['Par 3', 'Par 4', 'Par 5'],
   datasets: [

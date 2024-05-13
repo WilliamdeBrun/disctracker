@@ -12,17 +12,17 @@
                 <div @click="changeNextHole()"  class=" flex justify-center absolute inset-y-0 left-[67%] top-0 bg-slate-400 w-[23%] h-1/4 rounded-lg">
                     <i class="fa fa-arrow-right self-center text-white"></i>
                 </div>
-                <div class="flex justify-center absolute inset-y-0 left-[0%] top-[30%] bg-slate-400 w-[23%] h-[15%] rounded-lg" @click="highlight(1)" :class="{ 'highlighted': active === 1 }">
-                    <p class="text-white">P1</p>
+                <div class="flex justify-center absolute inset-y-0 left-[0%] top-[30%] bg-slate-400 w-[23%] h-[15%] rounded-lg" @click="highlight(1,{players})" :class="{ 'highlighted': active === 1 }">
+                    <p class="text-white"> {{ players[0] }}</p>
                 </div>
-                <div class="flex justify-center absolute inset-y-0 left-[0%] top-[45%] bg-slate-500 w-[23%] h-[15%] rounded-lg" @click="highlight(2)" :class="{ 'highlighted': active === 2 }">
-                    <p class="text-white text-center">P2</p>
+                <div class="flex justify-center absolute inset-y-0 left-[0%] top-[45%] bg-slate-500 w-[23%] h-[15%] rounded-lg" @click="highlight(2,{players})" :class="{ 'highlighted': active === 2 }">
+                    <p class="text-white text-center">{{ players[1] }}</p>
                 </div>
-                <div class="flex justify-center absolute inset-y-0 left-[0%] top-[60%] bg-slate-400 w-[23%] h-[15%] rounded-lg" @click="highlight(3)" :class="{ 'highlighted': active === 3 }">
-                    <p class="text-white text-center">P3</p>
+                <div class="flex justify-center absolute inset-y-0 left-[0%] top-[60%] bg-slate-400 w-[23%] h-[15%] rounded-lg" @click="highlight(3,{players})" :class="{ 'highlighted': active === 3 }">
+                    <p class="text-white text-center">{{ players[2] }}</p>
                 </div>
-                <div class="flex justify-center absolute inset-y-0 left-[0%] top-[75%] bg-slate-500 w-[23%] h-[15%] rounded-lg" @click="highlight(4)" :class="{ 'highlighted': active === 4 }">
-                    <p class="text-white text-center">P4</p>
+                <div class="flex justify-center absolute inset-y-0 left-[0%] top-[75%] bg-slate-500 w-[23%] h-[15%] rounded-lg" @click="highlight(4,{players})" :class="{ 'highlighted': active === 4 }">
+                    <p class="text-white text-center">{{ players[3] }}</p>
                 </div>
                 <div @click="subScore()" class="flex justify-center absolute inset-y-0 left-[33%] top-[45%] bg-slate-500 w-[15%] h-[15%] rounded-lg">
                     <i class="fa fa-minus self-center text-white"></i>
@@ -34,7 +34,7 @@
                 <div @click="addScore()" class="flex justify-center absolute inset-y-0 left-[74%] top-[45%] bg-slate-500 w-[15%] h-[15%] rounded-lg">
                     <i class="fa fa-plus self-center text-white"></i>
                 </div>
-                <div class="flex justify-center absolute inset-y-0 left-[48%] top-[65%] bg-slate-500 w-[26%] h-[15%] rounded-lg">
+                <div @click="saveScore(course)" class="flex justify-center absolute inset-y-0 left-[48%] top-[65%] bg-slate-500 w-[26%] h-[15%] rounded-lg">
                     <p class="text-white self-center">Save</p>
                 </div>
             </div>
@@ -48,15 +48,24 @@
   <script setup>
   import { ref, onMounted} from 'vue'
 
+  const props = defineProps({
+    course: String,
+    players: {
+    type: Array,
+    default: () => [],
+    },
+  });
+
+
 
   // Define reactive variables
   const username = ref('user1');
   const Score = ref(0);
   const Hole = ref(1);
   const active = ref(1);
-
-  const highlight = (item) => {
+  const highlight = (item, players) => {
      active.value = item;
+     username.value = players[item-1];
   }
   const addScore = () => {
     Score.value += 1;
@@ -76,6 +85,32 @@
         Hole.value -= 1;
     }
   };
+  const saveScore = (course) => {
+    fetch('http://localhost:5000/savescoreonhole', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({
+            course_name: course.value,
+            score: Score.value,
+            hole_number: Hole.value,
+        }),
+
+    })
+    .then(response => {
+        if (response.ok) {
+            // Score saved
+        } else {
+            // Score not saved
+        }
+    })
+    .catch(error => {
+        console.error('Failed to save score:', error);
+    });
+  };
+
   // Define methods
   const toggleMode = () => {
 

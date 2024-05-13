@@ -45,6 +45,7 @@ def token_required(f):
             # Decode and verify the token
             decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
            
+            uid = decoded_token['user_id']
             
             # You can perform additional checks here if needed
         except jwt.ExpiredSignatureError:
@@ -54,7 +55,7 @@ def token_required(f):
             return redirect(url_for('login'))
             #return jsonify({'message': 'Invalid token'}), 401
 
-        return f(*args, **kwargs)
+        return f(uid, *args, **kwargs)
 
     return decorated_function
 
@@ -72,7 +73,6 @@ def generate_access_token(user_id):
 
 def get_user_by_password(username, password):
     """Returns a user if password matches given username
-
     Args:
         username : Username to search
         password : Password for username
@@ -82,7 +82,6 @@ def get_user_by_password(username, password):
     """
     user = Users.query.filter_by(username=username, passwd=password).first()
     if user:
-       
         return user
     else:
         return False
@@ -128,15 +127,95 @@ def register():
 
     return jsonify({'message': 'User created successfully'}), 201
 
+@app.route('/addfriend', methods=['POST'])
+@token_required
+def add_friend(uid):
+    # Get user details from request
+    playername = request.json.get('playername')
+
+    player = Users.query.filter_by(username=playername).first()
+    if not player:
+        return jsonify({'message': 'nouser'}), 409
+    
+    # Create new friendship
+    friendship = Friends.query.filter_by(uid1=uid, uid2=player.id).first()
+    if friendship:
+        return jsonify({'message': 'friends'}), 409
+    new_friend = Friends(uid1=uid, uid2=player.id)
+    db.session.add(new_friend)
+    db.session.commit()
+    
+
+    return jsonify({'message': 'Friendship created successfully'}), 201
+
+@app.route('/getfriends', methods=['GET'])
+@token_required
+def get_friends(uid):
+    
+    friends = Friends.query.filter((Friends.uid1==uid) | (Friends.uid2==uid) ).all()
+    
+    friends_names = []
+    for friend in friends:
+        if friend.uid1 == uid:
+            friends_names.append(Users.query.get(friend.uid2).username)
+        else:
+            friends_names.append(Users.query.get(friend.uid1).username)
+    
+
+    return jsonify({'friends': friends_names, 'message': 'Friends returned'}), 201
+
+
+@app.route('/changepw', methods=['POST'])
+@token_required
+def change_pw(uid):
+    user = Users.query.get(uid)
+    old_pw = request.json.get('old_pw')
+    new_pw = request.json.get('new_pw')
+    repeat_pw = request.json.get('repeat_pw')
+    if not user:
+        return jsonify({'message': 'User not found'}), 409
+    if old_pw != user.passwd:
+        return jsonify({'message': 'Invalid password'}), 400
+    if new_pw != repeat_pw:
+        return jsonify({'message': 'Passwords did not match'}), 400
+
+    user.passwd = new_pw
+    db.session.commit()
+
+    return jsonify({'message': 'Password changed'}), 201
+
+
+@app.route('/savescoreonhole', methods=['POST'])
+@token_required
+def save_score(uid):
+    # Get user details from request
+    course = request.json.get('course_name')
+    score = request.json.get('score')
+    hole_number = request.json.get('hole_number')
+    courseid = Course.query.filter_by(coursename=course).first()
+    hole = Holes.query.filter_by(courseid=courseid.id, holenr=hole_number).first()
+    if not hole:
+        return jsonify({'message': 'Invalid hole number'}), 409
+
+    # Create new score
+    new_score = Score(uid=uid, courseid=courseid.id, holeid=hole.holeid, score=score)
+    db.session.add(new_score)
+    db.session.commit()
+
+    return jsonify({'message': 'Score created successfully'}), 201
+
+
 @app.route('/dashboard', methods=['GET'])
 @token_required
-def load_dashboard():
+def load_dashboard(uid):
     return jsonify({'message': 'Dashboard loaded successfully'}), 200
 
 @app.route('/getuser', methods=['GET'])
 @token_required
-def load_user():
+def load_user(uid):
     return jsonify({'message': 'Dashboard loaded successfully'}), 200
+
+
 
 class Users(db.Model):
     """User model"""
@@ -147,7 +226,21 @@ class Users(db.Model):
     passwd = db.Column(db.String(255), nullable=False)
     gender = db.Column(db.String(255), nullable=False)
 
+class Friends(db.Model):
+    """Friends model"""
+    friendshipid = db.Column(db.Integer, primary_key=True)
+    uid1 = db.Column(db.Integer, nullable=False)
+    uid2 = db.Column(db.Integer, nullable=False)
 
+    # Define foreign key constraints
+    __table_args__ = (
+        db.ForeignKeyConstraint(['uid1'], ['users.id']),
+        db.ForeignKeyConstraint(['uid2'], ['users.id']),
+        db.UniqueConstraint('uid1', 'uid2', name='unique_friendship'),
+        db.CheckConstraint('uid1 <> uid2', name='check_different_users'),
+    )
+
+    
 class Course(db.Model):
     """Course model"""
     courseid = db.Column(db.Integer, primary_key=True)
