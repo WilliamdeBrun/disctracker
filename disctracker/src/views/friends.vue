@@ -108,4 +108,3 @@ const getFriends = () => {
  <style>
  /* Add your custom styles here */
  </style>
-   
