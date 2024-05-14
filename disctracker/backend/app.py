@@ -207,6 +207,7 @@ def save_score(uid):
 
 @app.route('/getscores', methods=['GET'])
 def get_scores():
+   """get all the scores from the database that are used in leaderboard"""
    par_3_scores = get_par_scores(3)
    par_4_scores = get_par_scores(4)
    par_5_scores = get_par_scores(5)
@@ -217,6 +218,7 @@ def get_scores():
    return jsonify({'best_ham_f9': best_ham_f9, 'best_ham_18': best_ham_18, 'best_ham_b9': best_ham_b9, 'best_ryd_f9': best_ryd_f9, 'best_ryd_18': best_ryd_18, 'best_ryd_b9': best_ryd_b9,'par3': par_3_scores, 'par4': par_4_scores, 'par5': par_5_scores, 'allpar': all_par_scores,'message': 'Scores retrieved successfully'}), 201
 
 def get_par_scores(par):
+    """helper function to get all the scores based on what par it is"""
     par_scores_users = {}
     if par == "all":
         par_holes = Holes.query.all()
@@ -233,14 +235,12 @@ def get_par_scores(par):
     
     for user in par_scores_users:
         par_scores_users[user] = round(sum(par_scores_users[user])/len(par_scores_users[user]),2)    
-    print(par_scores_users)
     sorted_scores = nsmallest(5, par_scores_users.items(), key=lambda x: x[1])
-    sorted_dict = dict(sorted_scores)
     dict_list = [{key: value} for key, value in sorted_scores]
-    print(sorted_dict, "sorted_dict")
     return dict_list
 
 def get_rounds(course_id):
+    """helper function to get the top five rounds on every course"""
     course_scores_rounds = {}
     course_holes = Holes.query.filter(Holes.courseid == course_id).all()
     for hole in course_holes:
@@ -257,7 +257,6 @@ def get_best_rounds(rounds):
     best_f9 = {}
     best_18 = {}
     best_b9 = {}
-    print(rounds, "rounds")
     for round in rounds:
         score_obj = Score.query.filter(Score.roundid == round).order_by(Score.holeid).all()
         user_obj = Users.query.filter(Users.id == score_obj[0].uid).first()
@@ -268,14 +267,12 @@ def get_best_rounds(rounds):
             best_f9[round] = {username: rounds[round]}
         else:
             best_18[round] = {username: rounds[round]}
-    print(best_18, "best")
     sorted_f9 = sorted(best_f9.items(), key=lambda x: list(x[1].values()))[:5]
     sorted_18 = sorted(best_18.items(), key=lambda x: list(x[1].values()))[:5]
     sorted_b9 = sorted(best_b9.items(), key=lambda x: list(x[1].values()))[:5]
-    sorted_f9_values = [value for _, value in sorted_f9]
+    sorted_f9_values = [value for _, value in sorted_f9]#removing roundid from dict since we dont need it anymore
     sorted_18_values = [value for _, value in sorted_18]
     sorted_b9_values = [value for _, value in sorted_b9]
-    print(sorted_18_values, "sorted")
     return sorted_f9_values, sorted_18_values, sorted_b9_values
 
 @app.route('/dashboard', methods=['GET'])
