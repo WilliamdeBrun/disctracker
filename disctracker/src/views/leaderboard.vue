@@ -6,36 +6,36 @@
             <table class="text-white text-md md:text-md lg:text-xl font-bold mt-5 flex flex-col items-center justify-top mr-10">
               <h2 class="text-white text-md md:text-md lg:text-xl font-bold mb-3">Par 3</h2> 
               <tbody>
-                <tr v-for="(player, index) in sortTables(topPlayers, 'avg3')" :key="index">
-                  <td class="border-r border-white pr-2">{{ player.name }}</td>
-                  <td :class="avgColor(player.avg3) + ' pl-4'"> {{ addPlus(player.avg3) }} </td>
+                <tr v-for="(player, index) in topPar3" :key="index">
+                  <td class="border-r border-white pr-2">{{ Object.keys(player)[0] }}</td>
+                  <td :class="avgColor(player[Object.keys(player)[0]]) + ' pl-4'"> {{ addPlus(player[Object.keys(player)[0]]) }} </td>
                 </tr>
               </tbody>
             </table>
             <table class="text-white text-md md:text-md lg:text-xl font-bold mt-5 flex flex-col items-center justify-top mr-10">
               <h2 class="text-white text-md md:text-md lg:text-xl font-bold mb-3">Par 4</h2> 
               <tbody>
-                <tr v-for="(player, index) in sortTables(topPlayers, 'avg4')" :key="index">
-                  <td class="border-r border-white pr-2">{{ player.name }}</td>
-                  <td :class="avgColor(player.avg4) + ' pl-4'"> {{ addPlus(player.avg4) }} </td>
+                <tr v-for="(player, index) in topPar4" :key="index">
+                  <td class="border-r border-white pr-2">{{ Object.keys(player)[0] }}</td>
+                  <td :class="avgColor(player[Object.keys(player)[0]]) + ' pl-4'"> {{ addPlus(player[Object.keys(player)[0]]) }} </td>
                 </tr>
               </tbody>
             </table>
             <table class="text-white text-md md:text-md lg:text-xl font-bold mt-5 flex flex-col items-center justify-top mr-10">
               <h2 class="text-white text-md md:text-md lg:text-xl font-bold mb-3">Par 5</h2> 
               <tbody>
-                <tr v-for="(player, index) in sortTables(topPlayers, 'avg5')" :key="index">
-                  <td class="border-r border-white pr-2">{{ player.name }}</td>
-                  <td :class="avgColor(player.avg5) + ' pl-4'"> {{ addPlus(player.avg5) }} </td>
+                <tr v-for="(player, index) in topPar5" :key="index">
+                  <td class="border-r border-white pr-2">{{ Object.keys(player)[0] }}</td>
+                  <td :class="avgColor(player[Object.keys(player)[0]]) + ' pl-4'"> {{ addPlus(player[Object.keys(player)[0]]) }} </td>
                 </tr>
               </tbody>
             </table>
             <table class="text-white text-md md:text-md lg:text-xl font-bold mt-5 flex flex-col items-center justify-top">
               <h2 class="text-white text-md md:text-md lg:text-xl font-bold mb-3">All Pars</h2> 
               <tbody>
-                <tr v-for="(player, index) in sortTables(topPlayers, 'avg')" :key="index">
-                  <td class="border-r border-white pr-2">{{ player.name }}</td>
-                  <td :class="avgColor(player.avg) + ' pl-4'"> {{ addPlus(player.avg) }} </td>
+                <tr v-for="(player, index) in topPar" :key="index">
+                  <td class="border-r border-white pr-2">{{ Object.keys(player)[0] }}</td>
+                  <td :class="avgColor(player[Object.keys(player)[0]]) + ' pl-4'"> {{ addPlus(player[Object.keys(player)[0]]) }} </td>
                 </tr>
               </tbody>
             </table>
@@ -49,54 +49,54 @@
             <table class="text-white text-md md:text-md lg:text-xl font-bold mt-5 flex flex-col items-center justify-top mr-10">
               <h2 class="text-white text-md md:text-md lg:text-xl font-bold mb-3">Ryd F9</h2> 
               <tbody>
-                <tr v-for="(player, index) in sortTables(topRydF9, 'score')" :key="index">
-                  <td class="border-r border-white pr-2">{{ player.name }}</td>
-                  <td :class="avgColor(player.score) + ' pl-4'"> {{ addPlus(player.score) }} </td>
+                <tr v-for="(player, index) in topRydF9" :key="index">
+                  <td class="border-r border-white pr-2">{{ Object.keys(player)[0] }}</td>
+                  <td :class="avgColor(player[Object.keys(player)[0]]) + ' pl-4'"> {{ addPlus(player[Object.keys(player)[0]]) }} </td>
                 </tr>
               </tbody>
             </table>
             <table class="text-white text-md md:text-md lg:text-xl font-bold mt-5 flex flex-col items-center justify-top mr-10">
               <h2 class="text-white text-md md:text-md lg:text-xl font-bold mb-3">Ryd B9</h2> 
               <tbody>
-                <tr v-for="(player, index) in sortTables(topRydB9, 'score')" :key="index">
-                  <td class="border-r border-white pr-2">{{ player.name }}</td>
-                  <td :class="avgColor(player.score) + ' pl-4'"> {{ addPlus(player.score) }} </td>
+                <tr v-for="(player, index) in topRydB9" :key="index">
+                  <td class="border-r border-white pr-2">{{ Object.keys(player)[0] }}</td>
+                  <td :class="avgColor(player[Object.keys(player)[0]]) + ' pl-4'"> {{ addPlus(player[Object.keys(player)[0]]) }} </td>
                 </tr>
               </tbody>
             </table>
             <table class="text-white text-md md:text-md lg:text-xl font-bold mt-5 flex flex-col items-center justify-top mr-10">
               <h2 class="text-white text-md md:text-md lg:text-xl font-bold mb-3">Ryd 18</h2> 
               <tbody>
-                <tr v-for="(player, index) in sortTables(topRyd18, 'score')" :key="index">
-                  <td class="border-r border-white pr-2">{{ player.name }}</td>
-                  <td :class="avgColor(player.score) + ' pl-4'"> {{ addPlus(player.score) }} </td>
+                <tr v-for="(player, index) in topRyd18" :key="index">
+                  <td class="border-r border-white pr-2">{{ Object.keys(player)[0] }}</td>
+                  <td :class="avgColor(player[Object.keys(player)[0]]) + ' pl-4'"> {{ addPlus(player[Object.keys(player)[0]]) }} </td>
                 </tr>
               </tbody>
             </table>
             <table class="text-white text-md md:text-md lg:text-xl font-bold mt-5 flex flex-col items-center justify-top mr-10">
               <h2 class="text-white text-md md:text-md lg:text-xl font-bold mb-3">Hammaren F9</h2> 
               <tbody>
-                <tr v-for="(player, index) in sortTables(topHammarenF9, 'score')" :key="index">
-                  <td class="border-r border-white pr-2">{{ player.name }}</td>
-                  <td :class="avgColor(player.score) + ' pl-4'"> {{ addPlus(player.score) }} </td>
+                <tr v-for="(player, index) in topHammarenF9" :key="index">
+                  <td class="border-r border-white pr-2">{{ Object.keys(player)[0] }}</td>
+                  <td :class="avgColor(player[Object.keys(player)[0]]) + ' pl-4'"> {{ addPlus(player[Object.keys(player)[0]]) }} </td>
                 </tr>
               </tbody>
             </table>
             <table class="text-white text-md md:text-md lg:text-xl font-bold mt-5 flex flex-col items-center justify-top mr-10">
               <h2 class="text-white text-md md:text-md lg:text-xl font-bold mb-3">Hammaren B9</h2> 
               <tbody>
-                <tr v-for="(player, index) in sortTables(topHammarenB9, 'score')" :key="index">
-                  <td class="border-r border-white pr-2">{{ player.name }}</td>
-                  <td :class="avgColor(player.score) + ' pl-4'"> {{ addPlus(player.score) }} </td>
+                <tr v-for="(player, index) in topHammarenB9" :key="index">
+                  <td class="border-r border-white pr-2">{{ Object.keys(player)[0] }}</td>
+                  <td :class="avgColor(player[Object.keys(player)[0]]) + ' pl-4'"> {{ addPlus(player[Object.keys(player)[0]]) }} </td>
                 </tr>
               </tbody>
             </table>
             <table class="text-white text-md md:text-md lg:text-xl font-bold mt-5 flex flex-col items-center justify-top">
               <h2 class="text-white text-md md:text-md lg:text-xl font-bold mb-3">Hammaren 18</h2> 
               <tbody>
-                <tr v-for="(player, index) in sortTables(topHammaren18, 'score')" :key="index">
-                  <td class="border-r border-white pr-2">{{ player.name }}</td>
-                  <td :class="avgColor(player.score) + ' pl-4'"> {{ addPlus(player.score) }} </td>
+                <tr v-for="(player, index) in topHammaren18" :key="index">
+                  <td class="border-r border-white pr-2">{{ Object.keys(player)[0] }}</td>
+                  <td :class="avgColor(player[Object.keys(player)[0]]) + ' pl-4'"> {{ addPlus(player[Object.keys(player)[0]]) }} </td>
                 </tr>
               </tbody>
             </table>
@@ -117,63 +117,24 @@
   import { ref, onMounted} from 'vue'
 
   onMounted(async () => {
-  
+  getScores();
  });
 
- const topPlayers = ref([
-  { name: 'Pedro', avg3: -0.21, avg4: -0.35, avg5: 0.11, avg: -0.22},
-  { name: 'Alfonso', avg3: -0.13, avg4: -0.05, avg5: -0.11, avg: -0.22},
-  { name: 'Pablo', avg3: 0.00, avg4: 0.35, avg5: 0.00, avg: 0.22},
-  { name: 'Juan', avg3: 0.12, avg4: 0.34, avg5: 0.14, avg: 0.00},
-  { name: 'Carlos', avg3: 0.27, avg4: 0.35, avg5: 0.22, avg: -0.22}
- ]);
- const topRydF9 = ref([
-  { name: 'Pedro', score: -2},
-  { name: 'Alfonso', score: -1},
-  { name: 'Pablo', score: 0},
-  { name: 'Juan', score: 1},
-  { name: 'Carlos', score: 4}
- ]);
+ const topPar = ref([]);
+ const topPar3 = ref([]);
+ const topPar4 = ref([]);
+ const topPar5 = ref([]);
+ const topRydF9 = ref([]);
 
- const topRydB9 = ref([
-  { name: 'Pedro', score: -2},
-  { name: 'Alfonso', score: -1},
-  { name: 'Pablo', score: 0},
-  { name: 'Juan', score: 1},
-  { name: 'Carlos', score: 4}
- ]);
+ const topRydB9 = ref([]);
 
- const topRyd18 = ref([
-  { name: 'Pedro', score: -2},
-  { name: 'Alfonso', score: -1},
-  { name: 'Pablo', score: 0},
-  { name: 'Juan', score: 1},
-  { name: 'Carlos', score: 4}
- ]);
+ const topRyd18 = ref([]);
 
- const topHammarenF9 = ref([
-  { name: 'Pedro', score: -2},
-  { name: 'Alfonso', score: -1},
-  { name: 'Pablo', score: 0},
-  { name: 'Juan', score: 1},
-  { name: 'Carlos', score: 4}
- ]);
+ const topHammarenF9 = ref([]);
 
- const topHammarenB9 = ref([
-  { name: 'Pedro', score: -2},
-  { name: 'Alfonso', score: -1},
-  { name: 'Pablo', score: 0},
-  { name: 'Juan', score: 1},
-  { name: 'Carlos', score: 4}
- ]);
+ const topHammarenB9 = ref([]);
 
- const topHammaren18 = ref([
-  { name: 'Pedro', score: -2},
-  { name: 'Alfonso', score: -1},
-  { name: 'Pablo', score: 0},
-  { name: 'Juan', score: -11},
-  { name: 'Carlos', score: 4}
- ]);
+ const topHammaren18 = ref([]);
 
  const avgColor = (avg) => {
   if (avg < 0){
@@ -199,6 +160,45 @@
   });
 
   };
+  const getScores = () => {
+    fetch('http://127.0.0.1:5000/getscores', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }else{
+            throw new error('Failed to get friends');
+        }
+    })
+    .then(data => {
+        console.log(data);
+        if(data){
+            const {best_ham_f9, best_ham_18, best_ham_b9, best_ryd_f9, best_ryd_18, best_ryd_b9, par3, par4, par5, allpar } = data;
+            console.log(topPar);
+            topHammarenB9.value = best_ham_b9;
+            topHammarenF9.value = best_ham_f9;
+            topHammaren18.value = best_ham_18;
+            topRydF9.value = best_ryd_f9;
+            topRydB9.value = best_ryd_b9;
+            topRyd18.value = best_ryd_18;
+            topPar.value = allpar;
+            topPar3.value = par3;
+            topPar4.value = par4;
+            topPar5.value = par5;
+            
+            console.log(topPar);
+        }
+    })
+    .catch(error => {
+        console.error('Error adding friends:', error.message);
+        
+    });
+};
 </script>
 
 <style>

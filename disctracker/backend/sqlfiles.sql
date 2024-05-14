@@ -5,11 +5,13 @@ ALTER TABLE friends DROP FOREIGN KEY fk_user2;
 ALTER TABLE score DROP FOREIGN KEY fk_user;
 ALTER TABLE score DROP FOREIGN KEY fk_hole;
 ALTER TABLE score DROP FOREIGN KEY fk_course_score;
+ALTER TABLE score DROP FOREIGN KEY fk_round;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS friends;
 DROP TABLE IF EXISTS course;
 DROP TABLE IF EXISTS holes;
 DROP TABLE IF EXISTS score;
+DROP TABLE IF EXISTS rounds;
 
 
 -- Create the users table
@@ -53,6 +55,9 @@ CREATE TABLE holes (
     CONSTRAINT fk_course FOREIGN KEY (courseid) REFERENCES course(courseid)
 );
 
+CREATE TABLE rounds(
+    roundid INT AUTO_INCREMENT PRIMARY KEY
+);
 -- Create the score table with foreign key references to user id and course id
 CREATE TABLE score (
     scoreid INT AUTO_INCREMENT PRIMARY KEY,
@@ -60,6 +65,8 @@ CREATE TABLE score (
     courseid INT NOT NULL,
     holeid INT NOT NULL,
     score INT,
+    roundid INT NOT NULL,
+    CONSTRAINT fk_round FOREIGN KEY (roundid) REFERENCES rounds(roundid),
     CONSTRAINT fk_hole FOREIGN KEY (holeid) REFERENCES holes(holeid),
     CONSTRAINT fk_user FOREIGN KEY (uid) REFERENCES users(id),
     CONSTRAINT fk_course_score FOREIGN KEY (courseid) REFERENCES course(courseid)
