@@ -4,28 +4,28 @@
         <div class="w-2/3 h-1/4 bg-slate-900 bg-opacity-90 rounded-lg mt-10 flex flex-col items-center">
             <h2 class="text-white text-xs md:text-xl lg:text-3xl font-bold overflow-hidden h-1/5">Your averages</h2>
             <div class="flex w-full h-full justify-center">
-                <div class="h-4/5 w-1/4 mt-2 rounded-lg mr-10 flex items-top justify-center ml-10">
-                    <Bar :options="avgParOptions" :data="avgParData" />
+                <div v-if="avgLoaded" class="h-4/5 w-1/4 mt-2 rounded-lg mr-10 flex items-top justify-center ml-10">
+                    <Bar :options="avgOpt" :data="avgParData" />
                 </div>
-                <div class="h-4/5 w-1/4 mt-2 rounded-lg mr-10 flex items-top justify-center">
-                    <Bar :options="avgHammarenOptions" :data="avgHammarenData" />
+                <div v-if="avgLoaded" class="h-4/5 w-1/4 mt-2 rounded-lg mr-10 flex items-top justify-center">
+                    <Bar :options="avgOpt" :data="avgHammarenData" />
                 </div>
-                <div class="h-4/5 w-1/4 mt-2 rounded-lg flex items-top justify-center mr-10">
-                    <Bar :options="avgRydOptions" :data="avgRydData" />
+                <div v-if="avgLoaded" class="h-4/5 w-1/4 mt-2 rounded-lg flex items-top justify-center mr-10">
+                    <Bar :options="avgOpt" :data="avgRydData" />
                 </div>
             </div>
         </div>
         <div class="flex items-top justify-center w-2/3 h-1/4 mt-10 ">
             <div class="w-1/2 h-full bg-slate-900 bg-opacity-90 rounded-lg mr-10 flex flex-col items-center">
                 <h2 class="text-white text-xs md:text-xl lg:text-3xl font-bold overflow-hidden">Your previous round</h2>
-                <div class="h-2/3 w-4/ mt-2 flex items-center justify-center">
-                    <Bar :options="prevOpt" :data="prevData" />
+                <div v-if="previousLoaded" class="h-2/3 w-4/5 mt-2 flex items-center justify-center">
+                    <Bar :options="roundOpt" :data="prevData" />
                 </div>
             </div>
             <div class="w-1/2 h-full bg-slate-900 bg-opacity-90 rounded-lg flex flex-col items-center">
                 <h2 class="text-white text-xs md:text-xl lg:text-3xl font-bold overflow-hidden">Your best round</h2>
-                <div class="h-2/3 w-4/5 mt-2 flex items-center justify-center">
-                    <Bar :options="bestOpt" :data="bestData" />
+                <div v-if="bestLoaded" class="h-2/3 w-4/5 mt-2 flex items-center justify-center">
+                    <Bar :options="roundOpt" :data="bestData" />
                 </div>
             </div>
         </div>
@@ -33,7 +33,7 @@
             
             <div class="w-1/3 h-full bg-slate-900 bg-opacity-90 rounded-lg mr-10 flex flex-col items-center">
                 <h2 class="text-white text-xs md:text-xl lg:text-3xl font-bold overflow-hidden">Played courses</h2>
-                <div class="h-3/4 w-4/5 mt-2 flex items-center justify-center">
+                <div v-if="playedLoaded" class="h-3/4 w-4/5 mt-2 flex items-center justify-center">
                     <Doughnut :options="coursesOpt" :data="coursesData" />
                 </div>
             </div>
@@ -62,12 +62,18 @@
   import { ref, onMounted} from 'vue'
   import { Bar, Doughnut } from 'vue-chartjs'
   import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement } from 'chart.js'
+  import { toRaw } from 'vue';
   // Define reactive variables
   const passwordChange = ref('');
   const oldPw = ref('');
   const newPw = ref('');
   const repeatPw = ref('');
   const passwordMessage = ref('');
+  const previousLoaded = ref(false);
+  const bestLoaded = ref(false);
+  const avgLoaded = ref(false);
+  const playedLoaded = ref(false);
+  
  // Ensure Chart.js plugins are registered
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement);
 
@@ -108,19 +114,22 @@ const changePw = () =>{
     });
 
 };
+
 const avgParData = ref({
-  labels: ['Par 3', 'Par 4', 'Par 5'],
+  labels: [''],
   datasets: [
     {
-      label: 'Your averages on pars',
-      backgroundColor: 'green',
-      data: [3.3, 3.7, 5.9]
+      label: '',
+      backgroundColor: '',
+      data: []
     }
   ]
 });
 
-const avgHammarenOptions = ref({
+const avgOpt = ref({
   responsive: true,
+  maintainAspectRatio: false, 
+  aspectRatio: 2,
   scales: {
     y: {
       beginAtZero: true,
@@ -150,102 +159,46 @@ const avgHammarenOptions = ref({
   }
 });
 const avgHammarenData = ref({
-  labels: ['Par 3', 'Par 4', 'Par 5'],
+  labels: [''],
   datasets: [
     {
-      label: 'Your averages on Hammaren DiscGolfPark',
-      backgroundColor: 'green',
-      data: [3.3, 3.7, 5.9]
+      label: '',
+      backgroundColor: '',
+      data: []
     }
   ]
 });
 
-const avgRydOptions = ref({
-    responsive: true,
-  scales: {
-    y: {
-      beginAtZero: true,
-      grid: {
-        color: 'white' 
-      },
-      ticks: {
-        color: 'white' 
-      }
-    },
-    x: {
-      grid: {
-        color: 'white' 
-      },
-      ticks: {
-        color: 'white'
-      }
-    }
-  },
-  plugins: {
-    legend: {
-      display: true,
-      labels: {
-        color: 'white' 
-      }
-    }
-  }
-});
+
 
 const avgRydData = ref({
-  labels: ['Par 3', 'Par 4', 'Par 5'],
+  labels: [''],
   datasets: [
     {
-      label: 'Your averages on Rydskogen DGC',
-      backgroundColor: 'green',
-      data: [3.3, 3.7, 5.9]
+      label: '',
+      backgroundColor: '',
+      data: []
     }
   ]
 });
 
-const avgParOptions = ref({
-    responsive: true,
-  scales: {
-    y: {
-      beginAtZero: true,
-      grid: {
-        color: 'white' 
-      },
-      ticks: {
-        color: 'white' 
-      }
-    },
-    x: {
-      grid: {
-        color: 'white' 
-      },
-      ticks: {
-        color: 'white' 
-      }
-    }
-  },
-  plugins: {
-    legend: {
-      display: true,
-      labels: {
-        color: 'white' 
-      }
-    }
-  }
-});
+
 
 const prevData = ref({
-  labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18'],
+  labels: [],
   datasets: [
     {
-      label: 'Your score on each hole',
-      backgroundColor: 'green',
-      data: [3, 3, 3, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+      label: '',
+      backgroundColor: '',
+      data: []
     }
   ]
 });
 
-const prevOpt = ref({
+const roundOpt = ref({
   responsive: true,
+  maintainAspectRatio: false, 
+  aspectRatio: 2,
   scales: {
     y: {
       beginAtZero: true,
@@ -277,60 +230,30 @@ const prevOpt = ref({
 });
 
 const bestData = ref({
-  labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18'],
+  labels: [],
   datasets: [
     {
-      label: 'Your score on each hole',
-      backgroundColor: 'green',
-      data: [3, 3, 3, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+      label: '',
+      backgroundColor: '',
+      data: []
     }
   ]
 });
 
-const bestOpt = ref({
-  responsive: true,
-  scales: {
-    y: {
-      beginAtZero: true,
-      grid: {
-        display: false 
-      },
-      ticks: {
-        
-        color: 'white'
-      }
-    }, 
-    x: {
-      ticks: {
-        font: {
-          size: 8
-        },
-        color: 'white'
-      },
-      grid: {
-        display: false 
-      }
-    }
-  },
-  plugins: {
-    legend: {
-      display: false
-    }
-  }
-});
-
 const coursesData = ref({
-  labels: ['Rydskogen F9', 'Rydskogen B9', 'Rydskogen 18', 'Hammaren F9', 'Hammaren B9', 'Hammaren 18'],
+  labels: [],
   datasets: [
     {
-    data: [300, 50, 100, 40, 20, 65],
-    backgroundColor: ['red', 'blue', 'yellow', 'green', 'purple', 'orange']
+    data: [],
+    backgroundColor: []
   }
 ]
 });
 
 const coursesOpt = ref({
   responsive: true,
+  maintainAspectRatio: false, // prevent chartsize from being rendered poorly
+  aspectRatio: 2,
   plugins: {
     legend: {
       display: true,
@@ -341,12 +264,204 @@ const coursesOpt = ref({
   }
 
 });
- 
+
+const getAvgs = () => {
+    fetch('http://127.0.0.1:5000/youravg', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }else{
+            throw new Error('Failed to get averages');
+        }
+    })
+    .then(data => {
+        console.log(data);
+        if(data){
+            const avgRyd = data.ryd;
+            const avgHammaren = data.hammaren;
+            const avgAll = data.all;
+            avgRydData.value = {
+                labels: Object.keys(avgRyd),
+                datasets: [
+                    {
+                        label: 'Your averages on Rydskogen DGC',
+                        backgroundColor: 'green',
+                        data: Object.values(avgRyd)
+                    }
+                ]
+            };
+            avgHammarenData.value = {
+                labels: Object.keys(avgHammaren),
+                datasets: [
+                    {
+                        label: 'Your averages on Hammaren DiscGolfPark',
+                        backgroundColor: 'green',
+                        data: Object.values(avgHammaren)
+                    }
+                ]
+            };
+            avgParData.value = {
+                labels: Object.keys(avgAll),
+                datasets: [
+                    {
+                        label: 'Your averages on pars',
+                        backgroundColor: 'green',
+                        data: Object.values(avgAll)
+                    }
+                ]
+            };
+        }
+    })
+    .catch(error => {
+        console.error('Error averages:', error.message);
+        
+    });
+    
+    
+};
+
+const bestRound = () => {
+    fetch('http://127.0.0.1:5000/bestround', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }else{
+            throw new Error('Failed to get best round');
+        }
+    })
+    .then(data => {
+        console.log(data);
+        if(data.best_round){
+            const bestRound = data.best_round;
+            bestData.value = {
+                labels: Object.keys(bestRound),
+                datasets: [
+                    {
+                        label: 'Your score on each hole',
+                        backgroundColor: 'green',
+                        data: Object.values(bestRound)
+                    }
+                ]
+            };
+            
+        }
+    })
+    .catch(error => {
+        console.error('Error finding round:', error.message);
+        
+    });
+    
+    
+};
+const prevRound = () => {
+    fetch('http://127.0.0.1:5000/previousround', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }else{
+            throw new Error('Failed to get latest round');
+        }
+    })
+    .then(data => {
+        if(data){
+            const prevRound = data.latest_round;
+            prevData.value = {
+                labels: Object.keys(prevRound),
+                datasets: [
+                    {
+                        label: 'Your score on each hole',
+                        backgroundColor: 'green',
+                        data: Object.values(prevRound)
+                    }
+                ]
+            };
+        }
+    })
+    .catch(error => {
+        console.error('Error finding round:', error.message);
+        
+    });
+    
+    
+};
+
+const mostPlayed = () => {
+    fetch('http://127.0.0.1:5000/mostplayed', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }else{
+            throw new Error('Failed to get played round');
+        }
+    })
+    .then(data => {
+        console.log(data);
+        if(data.rounds){
+            const played = data.rounds;
+            coursesData.value = {
+                labels: Object.keys(played),
+                datasets: [
+                    {
+                        label: 'Number of times played',
+                        data: Object.values(played),
+                        backgroundColor: ['red', 'blue']
+                    }
+                ]
+            };
+            
+        }
+    })
+    .catch(error => {
+        console.error('Error finding rounds:', error.message);
+        
+    });
+    
+    
+};
     
 
   onMounted(async () => {
-  
+    await getData();
+    
  });
+ const getData = async () =>{
+  try{
+    await prevRound();
+    previousLoaded.value = true;
+    await bestRound();
+    bestLoaded.value = true;
+    await getAvgs();
+    avgLoaded.value = true;
+    await mostPlayed();
+    playedLoaded.value = true;
+  }catch(error){
+    console.log('Error getting data:', error.message)
+  };
+ };
  
 </script>
 
