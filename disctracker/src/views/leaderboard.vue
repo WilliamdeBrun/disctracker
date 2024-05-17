@@ -118,6 +118,7 @@
 
   onMounted(async () => {
   getScores();
+  getScoresRounds();
  });
 
  const topPar = ref([]);
@@ -166,20 +167,14 @@
         if (response.ok) {
             return response.json();
         }else{
-            throw new Error('Failed to get friends');
+            throw new Error('Failed to get pars');
         }
     })
     .then(data => {
         console.log(data);
         if(data){
-            const {best_ham_f9, best_ham_18, best_ham_b9, best_ryd_f9, best_ryd_18, best_ryd_b9, par3, par4, par5, allpar } = data;
+            const {par3, par4, par5, allpar } = data;
             console.log('hello');
-            topHammarenB9.value = best_ham_b9;
-            topHammarenF9.value = best_ham_f9;
-            topHammaren18.value = best_ham_18;
-            topRydF9.value = best_ryd_f9;
-            topRydB9.value = best_ryd_b9;
-            topRyd18.value = best_ryd_18;
             topPar.value = allpar;
             topPar3.value = par3;
             topPar4.value = par4;
@@ -189,7 +184,41 @@
         }
     })
     .catch(error => {
-        console.error('Error adding friends:', error.message);
+        console.error('Error getting pars:', error.message);
+        
+    });
+};
+const getScoresRounds = () => {
+    fetch('http://127.0.0.1:5000/getscoresrounds', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }else{
+            throw new Error('Failed to get stats');
+        }
+    })
+    .then(data => {
+        console.log(data);
+        if(data){
+            const {best_ham_f9, best_ham_18, best_ham_b9, best_ryd_f9, best_ryd_18, best_ryd_b9} = data;
+            console.log('hello', data);
+            topHammarenB9.value = best_ham_b9;
+            topHammarenF9.value = best_ham_f9;
+            topHammaren18.value = best_ham_18;
+            topRydF9.value = best_ryd_f9;
+            topRydB9.value = best_ryd_b9;
+            topRyd18.value = best_ryd_18;
+
+        }
+    })
+    .catch(error => {
+        console.error('Error getting data:', error.message);
         
     });
 };
