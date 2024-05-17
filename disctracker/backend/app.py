@@ -1,12 +1,11 @@
 from flask import Flask, request, jsonify, redirect, url_for
 from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text
+from sqlalchemy import text, asc, desc, func
 import jwt
 from datetime import datetime, timedelta
 from functools import wraps
 from heapq import nsmallest
-
 
 
 app = Flask(__name__)
@@ -215,7 +214,7 @@ def get_scores():
    best_ham_f9, best_ham_18, best_ham_b9 = get_rounds(1) 
    best_ryd_f9, best_ryd_18, best_ryd_b9 = get_rounds(2)  
 
-   return jsonify({'best_ham_f9': best_ham_f9, 'best_ham_18': best_ham_18, 'best_ham_b9': best_ham_b9, 'best_ryd_f9': best_ryd_f9, 'best_ryd_18': best_ryd_18, 'best_ryd_b9': best_ryd_b9,'par3': par_3_scores, 'par4': par_4_scores, 'par5': par_5_scores, 'allpar': all_par_scores,'message': 'Scores retrieved successfully'}), 201
+   return jsonify({'best_ham_f9': best_ham_f9, 'best_ham_18': best_ham_18, 'best_ham_b9': best_ham_b9, 'best_ryd_f9': best_ryd_f9, 'best_ryd_18': best_ryd_18, 'best_ryd_b9': best_ryd_b9,'par3': par_3_scores, 'par4': par_4_scores, 'par5': par_5_scores, 'allpar': all_par_scores,'message': 'Scores retrieved successfully'}), 200
 
 def get_par_scores(par):
     """helper function to get all the scores based on what par it is"""
@@ -234,10 +233,12 @@ def get_par_scores(par):
             par_scores_users[username].append(score.score - hole.par)
     
     for user in par_scores_users:
-        par_scores_users[user] = round(sum(par_scores_users[user])/len(par_scores_users[user]),2)    
+        if par_scores_users[user]:
+            par_scores_users[user] = round(sum(par_scores_users[user])/len(par_scores_users[user]),2)    
     sorted_scores = nsmallest(5, par_scores_users.items(), key=lambda x: x[1])
     dict_list = [{key: value} for key, value in sorted_scores]
     return dict_list
+
 
 def get_rounds(course_id):
     """helper function to get the top five rounds on every course"""
@@ -275,6 +276,86 @@ def get_best_rounds(rounds):
     sorted_b9_values = [value for _, value in sorted_b9]
     return sorted_f9_values, sorted_18_values, sorted_b9_values
 
+@app.route('/previousround', methods=['GET'])
+@token_required
+def get_previous_round(uid):
+    previous_round = {}
+    scores = Score.query.filter(Score.uid == uid).order_by(desc(Score.roundid), asc(Score.holeid)).all()
+    for i in range(len(scores)):
+        if i+17 < len(scores) and scores[i].roundid == scores[i+17].roundid:
+            for j in range(18):
+                previous_round[j+1] = scores[i+j].score
+            break
+    
+    if not previous_round:
+        return jsonify({'message': 'No 18 hole round played'}), 204
+    
+    return jsonify({'latest_round': previous_round, 'message': 'Latest round found'}), 200
+
+@app.route('/bestround', methods=['GET'])
+@token_required
+def get_your_best(uid):
+    best_round = {}
+    best_score = float('inf')
+    scores = Score.query.filter(Score.uid == uid).order_by(Score.roundid, Score.holeid).all()
+    for i in range(len(scores)):
+        if i+17 < len(scores) and scores[i].roundid == scores[i+17].roundid:
+            curr_round = {}
+            for j in range(18):
+                curr_round[j+1] = scores[i+j].score
+            curr_score = sum(curr_round.values())
+            if  curr_score < best_score:
+                best_round = curr_round
+                best_score = curr_score
+    
+    if not best_round:
+        return jsonify({'message': 'No 18 hole round played'}), 204
+    
+    return jsonify({'best_round': best_round, 'message': 'Best round found'}), 200
+
+@app.route('/youravg', methods=['GET'])
+@token_required
+def get_your_avg(uid):
+    avg_ryd = {3:[], 4:[], 5:[]}
+    avg_all = {3:[], 4:[], 5:[]}
+    avg_hammaren = {3:[], 4:[]}
+    scores = Score.query.filter(Score.uid==uid).all()
+    for score in scores:
+        hole = Holes.query.filter(Holes.holeid == score.holeid).first()
+        if score.courseid == 1:
+            avg_hammaren[hole.par].append(score.score)
+        else:
+            avg_ryd[hole.par].append(score.score)
+        avg_all[hole.par].append(score.score)
+    
+    for key in avg_all:
+        if avg_ryd[key]:
+            avg_ryd[key] = sum(avg_ryd[key])/len(avg_ryd[key])
+        if key != 5 and avg_hammaren[key]: #hammaren has no par 5 holes
+            avg_hammaren[key] = sum(avg_hammaren[key])/len(avg_hammaren[key])
+        if avg_all[key]:
+            avg_all[key] = sum(avg_all[key])/len(avg_all[key])
+
+    
+    return jsonify({'ryd': avg_ryd, 'hammaren': avg_hammaren, 'all': avg_all, 'message': 'Best round found'}), 200
+
+@app.route('/mostplayed', methods=['GET'])
+@token_required
+def get_most_played(uid):
+    round_ids = []
+    n_rounds = {'Rydskogen DGC': 0, 'Hammaren DiscGolfPark': 0}
+    scores = Score.query.filter(Score.uid==uid).all()
+    for score in scores:
+        if score.roundid not in round_ids:
+            round_ids.append(score.roundid)
+            if score.courseid == 1:
+                n_rounds['Hammaren DiscGolfPark'] = n_rounds['Hammaren DiscGolfPark'] + 1
+            else:
+                n_rounds['Rydskogen DGC'] = n_rounds['Rydskogen DGC'] + 1
+    
+    return jsonify({'rounds': n_rounds, 'message': 'Played rounds found'}), 200
+    
+
 @app.route('/dashboard', methods=['GET'])
 @token_required
 def load_dashboard(uid):
@@ -283,8 +364,29 @@ def load_dashboard(uid):
 @app.route('/getuser', methods=['GET'])
 @token_required
 def load_user(uid):
-    return jsonify({'message': 'Dashboard loaded successfully'}), 200
+    print(uid)
+    user = Users.query.get(uid)
+    if not user:
+        return jsonify({'message': 'User not found'}), 409
+    return jsonify({'uid':user.id, 'username': user.username, 'realname': user.realname, 'email': user.email}), 200
 
+@app.route('/getusers', methods=['POST'])
+@token_required
+def load_users(uid):
+    print("hej")
+    list_of_users = request.json.get('list_of_users')
+    users = Users.query.filter(Users.username.in_(list_of_users)).all()
+    user_list = []
+    print("hej2")
+    for username in list_of_users:
+        user = next((u for u in users if u.username == username), None)
+        if user:
+            user_data = {'uid': user.id, 'username': user.username, 'realname': user.realname, 'email': user.email}
+        else:
+            user_data = {'uid': 'temp', 'username': 'temp', 'realname': 'temp', 'email': 'temp@domain.com'}
+        user_list.append(user_data)
+    print(user_list)
+    return jsonify({'users': user_list, 'message': 'Users returned'}), 200
 
 
 class Users(db.Model):
