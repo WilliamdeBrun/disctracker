@@ -6,6 +6,7 @@ import jwt
 from datetime import datetime, timedelta
 from functools import wraps
 from heapq import nsmallest
+from collections import defaultdict
 
 
 app = Flask(__name__)
@@ -211,26 +212,30 @@ def get_scores():
    par_4_scores = get_par_scores(4)
    par_5_scores = get_par_scores(5)
    all_par_scores = get_par_scores("all")
-   best_ham_f9, best_ham_18, best_ham_b9 = get_rounds(1) 
-   best_ryd_f9, best_ryd_18, best_ryd_b9 = get_rounds(2)  
+   return jsonify({'par3': par_3_scores, 'par4': par_4_scores, 'par5': par_5_scores, 'allpar': all_par_scores,'message': 'Scores retrieved successfully'}), 200
 
-   return jsonify({'best_ham_f9': best_ham_f9, 'best_ham_18': best_ham_18, 'best_ham_b9': best_ham_b9, 'best_ryd_f9': best_ryd_f9, 'best_ryd_18': best_ryd_18, 'best_ryd_b9': best_ryd_b9,'par3': par_3_scores, 'par4': par_4_scores, 'par5': par_5_scores, 'allpar': all_par_scores,'message': 'Scores retrieved successfully'}), 200
+@app.route('/getscoresrounds', methods=['GET'])
+def get_scores_rounds():
+    best_ham_f9, best_ham_18, best_ham_b9 = get_rounds(1) 
+    best_ryd_f9, best_ryd_18, best_ryd_b9 = get_rounds(2) 
+    return jsonify({'best_ham_f9': best_ham_f9, 'best_ham_18': best_ham_18, 'best_ham_b9': best_ham_b9, 'best_ryd_f9': best_ryd_f9, 'best_ryd_18': best_ryd_18, 'best_ryd_b9': best_ryd_b9,'message': 'Scores retrieved successfully'}), 200
 
 def get_par_scores(par):
     """helper function to get all the scores based on what par it is"""
-    par_scores_users = {}
+    par_scores_users = defaultdict(list)
     if par == "all":
         par_holes = Holes.query.all()
     else:
         par_holes = Holes.query.filter(Holes.par == par).all()
-    for hole in par_holes:
-        par_scores = Score.query.filter(Score.holeid == hole.holeid).all()
-        for score in par_scores:
-            user = Users.query.filter(Users.id == score.uid).first()
-            username = user.username
-            if username not in par_scores_users:
-                par_scores_users[username] = []
-            par_scores_users[username].append(score.score - hole.par)
+    
+    hole_ids = [hole.holeid for hole in par_holes]
+    hole_pars = {hole.holeid: hole.par for hole in par_holes}
+    users = {user.id: user.username for user in Users.query.all()}
+    scores = Score.query.filter(Score.holeid.in_(hole_ids)).all()
+  
+    for score in scores:
+        username = users.get(score.uid)
+        par_scores_users[username].append(score.score - hole_pars[score.holeid])
     
     for user in par_scores_users:
         if par_scores_users[user]:
@@ -242,29 +247,37 @@ def get_par_scores(par):
 
 def get_rounds(course_id):
     """helper function to get the top five rounds on every course"""
-    course_scores_rounds = {}
+    course_scores_rounds = defaultdict(list)
     course_holes = Holes.query.filter(Holes.courseid == course_id).all()
-    for hole in course_holes:
-        hole_scores = Score.query.filter(Score.holeid == hole.holeid).all()
-        for score in hole_scores:
-            if score.roundid not in course_scores_rounds:
-                course_scores_rounds[score.roundid] = []
-            course_scores_rounds[score.roundid].append(score.score - hole.par)
+    hole_ids = [hole.holeid for hole in course_holes]
+    hole_pars = {hole.holeid: hole.par for hole in course_holes}
+    scores = Score.query.filter(Score.holeid.in_(hole_ids)).all()
+    for score in scores:
+        course_scores_rounds[score.roundid].append(score.score - hole_pars[score.holeid])
     for round in course_scores_rounds:
         course_scores_rounds[round] = sum(course_scores_rounds[round])
+        
     return get_best_rounds(course_scores_rounds)
 
 def get_best_rounds(rounds):
+    """helper function to filter out the top five rounds on a course for get_rounds"""
     best_f9 = {}
     best_18 = {}
     best_b9 = {}
+    round_ids = list(rounds.keys())
+    scores = Score.query.filter(Score.roundid.in_(round_ids)).order_by(Score.roundid, Score.holeid).all()
+    user_ids = [score.uid for score in scores]
+    usernames = {user.id: user.username for user in Users.query.filter(Users.id.in_(user_ids)).all()}
+    scores_roundids = defaultdict(list)
+    for score in scores:
+        scores_roundids[score.roundid].append(score)
     for round in rounds:
-        score_obj = Score.query.filter(Score.roundid == round).order_by(Score.holeid).all()
-        user_obj = Users.query.filter(Users.id == score_obj[0].uid).first()
-        username = user_obj.username
-        if score_obj[0].holeid % 18 != 1:
+        first_score = scores_roundids[round][0]
+        last_score = scores_roundids[round][-1]
+        username = usernames[first_score.uid]
+        if first_score.holeid % 18 != 1:
             best_b9[round] = {username: rounds[round]}
-        elif score_obj[-1].holeid % 18 != 0:
+        elif last_score.holeid % 18 != 0:
             best_f9[round] = {username: rounds[round]}
         else:
             best_18[round] = {username: rounds[round]}
@@ -279,6 +292,7 @@ def get_best_rounds(rounds):
 @app.route('/previousround', methods=['GET'])
 @token_required
 def get_previous_round(uid):
+    """gets the results on each holes on the users previous round"""
     previous_round = {}
     scores = Score.query.filter(Score.uid == uid).order_by(desc(Score.roundid), asc(Score.holeid)).all()
     for i in range(len(scores)):
@@ -295,6 +309,7 @@ def get_previous_round(uid):
 @app.route('/bestround', methods=['GET'])
 @token_required
 def get_your_best(uid):
+    """gets the results on each holes on the users best round"""
     best_round = {}
     best_score = float('inf')
     scores = Score.query.filter(Score.uid == uid).order_by(Score.roundid, Score.holeid).all()
@@ -316,6 +331,7 @@ def get_your_best(uid):
 @app.route('/youravg', methods=['GET'])
 @token_required
 def get_your_avg(uid):
+    """gets the users par averages"""
     avg_ryd = {3:[], 4:[], 5:[]}
     avg_all = {3:[], 4:[], 5:[]}
     avg_hammaren = {3:[], 4:[]}
@@ -342,6 +358,7 @@ def get_your_avg(uid):
 @app.route('/mostplayed', methods=['GET'])
 @token_required
 def get_most_played(uid):
+    """gets the stats on how many times the user has played on each course"""
     round_ids = []
     n_rounds = {'Rydskogen DGC': 0, 'Hammaren DiscGolfPark': 0}
     scores = Score.query.filter(Score.uid==uid).all()
