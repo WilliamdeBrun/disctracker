@@ -15,10 +15,10 @@
              
              
          </div>
-         <div class="w-1/2 h-1/4 bg-slate-900 bg-opacity-90 rounded-lg mt-20 flex flex-col items-center">
-            <h2 class="text-white text-md md:text-xl lg:text-3xl font-bold ml-2">Your Friends</h2>
+         <div :style="{ height: 'calc(25% + ' +(friends.length * 10) + 'px)'  }" class="w-1/4 h-1/4 bg-slate-900 bg-opacity-90 rounded-lg mt-20 flex flex-col items-center">
+            <h2 class="text-white text-md md:text-xl lg:text-3xl font-bold ml-2">Your friends</h2>
             <ul>
-                <li v-for="(friend, index) in friends" :key="index" class="text-white">{{ friend }}</li>
+                <li v-for="(friend, index) in friends" :key="index" class="text-white text-md md:text-md lg:text-xl font-bold">{{ friend }}</li>
             </ul>
          </div>
      </div>
@@ -84,7 +84,7 @@ const getFriends = () => {
         if (response.ok) {
             return response.json();
         }else{
-            throw new error('Failed to get friends');
+            throw new Error('Failed to get friends');
         }
     })
     .then(data => {
@@ -108,4 +108,3 @@ const getFriends = () => {
  <style>
  /* Add your custom styles here */
  </style>
-   
