@@ -283,8 +283,29 @@ def load_dashboard(uid):
 @app.route('/getuser', methods=['GET'])
 @token_required
 def load_user(uid):
-    return jsonify({'message': 'Dashboard loaded successfully'}), 200
+    print(uid)
+    user = Users.query.get(uid)
+    if not user:
+        return jsonify({'message': 'User not found'}), 409
+    return jsonify({'uid':user.id, 'username': user.username, 'realname': user.realname, 'email': user.email}), 200
 
+@app.route('/getusers', methods=['POST'])
+@token_required
+def load_users(uid):
+    print("hej")
+    list_of_users = request.json.get('list_of_users')
+    users = Users.query.filter(Users.username.in_(list_of_users)).all()
+    user_list = []
+    print("hej2")
+    for username in list_of_users:
+        user = next((u for u in users if u.username == username), None)
+        if user:
+            user_data = {'uid': user.id, 'username': user.username, 'realname': user.realname, 'email': user.email}
+        else:
+            user_data = {'uid': 'temp', 'username': 'temp', 'realname': 'temp', 'email': 'temp@domain.com'}
+        user_list.append(user_data)
+    print(user_list)
+    return jsonify({'users': user_list, 'message': 'Users returned'}), 200
 
 
 class Users(db.Model):

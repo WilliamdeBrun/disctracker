@@ -37,7 +37,7 @@
    // Define reactive variables
    const numOfFriends = ref(0); 
    const newindex = ref(0);
-   const players = ref(['', '', '', '']);
+   const players = ref([]);
    const coursePath = ref('');
    const friends = ref([]);
    const filteredFriends = ref([]);
@@ -74,7 +74,6 @@
   
     filteredFriends.value = filtered;
     if(filteredFriends.value.length === 1){
-        
         filteredFriends.value = [];
     } 
 
@@ -102,6 +101,32 @@
     })
     .catch(error => {
         console.error('Error adding friends:', error.message);
+        
+    });
+
+    fetch('http://127.0.0.1:5000/getuser', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }else{
+            throw new error('Failed to get user');
+        }
+    })
+    .then(data => {
+        if(data){
+            const {uid, username, realname, email} = data;
+            players.value.push(username);
+            numOfFriends.value = numOfFriends.value + 1;
+        }
+    })
+    .catch(error => {
+        console.error('Error adding user:', error.message);
         
     });
 

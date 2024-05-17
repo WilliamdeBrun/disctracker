@@ -54,12 +54,12 @@
                 <div class=" absolute inset-x-0 top-[35%] w-[80%] left-[10%]"> 
                     <div v-for="(player,index) in updatePlayer" :key="index" class="flex items-center  mb-1">
                         <div class="flex  bg-slate-900 w-full  h-44 rounded-md"> 
-                            <div class="w-1/3 h-full justify-center items-center text-center">
-                                <p class="text-white text-9xl mt-3">{{ player }}</p>
+                            <div class="w-full h-full justify-center items-center text-center overflow-hidden">
+                                <p class="text-white text-[400%] mt-3">{{ player }}</p>
                             </div>
                             <div class="w-full h-full flex justify-end mr-3 items-center text-center"> 
                                 <div class="rounded-md bg-slate-600  w-[160px] h-[90%]" @click="subScore(index)">-</div>
-                                <div class="text-white w-[100px] h-[70%] text-[120px] -mt-20">{{ Score[index] }}</div>
+                                <div class="text-white w-[140px] h-[70%] text-[120px] -mt-20">{{ Score[index] }}</div>
                                 <div class="rounded-md bg-slate-600  w-[160px] h-[90%]" @click="addScore(index)">+</div>
                             </div>
                         </div> 
@@ -152,6 +152,32 @@
     
   };
   onMounted(async () => {
+    fetch('http://localhost:5000/getusers', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+    },
+    body: JSON.stringify({
+        list_of_users: updatePlayer // Replace this array with your list of users
+    })
+    })
+    .then(response => {
+        if (response.ok){
+            return response.json();
+        }else{
+            throw new error('Failed to get user');
+        }
+    })
+    .then(data => {
+        if(data){
+            console.log(data);
+        }
+    })
+    .catch(error => {
+        console.error('Failed to check token:', error);
+    });
+
     props.players.forEach((player, index) => {
     if(player !== ''){
         updatePlayer.value.push(player); 
