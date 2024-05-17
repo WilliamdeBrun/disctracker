@@ -154,12 +154,6 @@
   }
  };
 
- const sortTables = (table, key) => {
-  return table.slice().sort((a,b) => {
-    return a[key] - b[key];
-  });
-
-  };
   const getScores = () => {
     fetch('http://127.0.0.1:5000/getscores', {
         method: 'GET',
@@ -172,14 +166,14 @@
         if (response.ok) {
             return response.json();
         }else{
-            throw new error('Failed to get friends');
+            throw new Error('Failed to get friends');
         }
     })
     .then(data => {
         console.log(data);
         if(data){
             const {best_ham_f9, best_ham_18, best_ham_b9, best_ryd_f9, best_ryd_18, best_ryd_b9, par3, par4, par5, allpar } = data;
-            console.log(topPar);
+            console.log('hello');
             topHammarenB9.value = best_ham_b9;
             topHammarenF9.value = best_ham_f9;
             topHammaren18.value = best_ham_18;

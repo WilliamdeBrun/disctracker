@@ -84,7 +84,7 @@ const getFriends = () => {
         if (response.ok) {
             return response.json();
         }else{
-            throw new error('Failed to get friends');
+            throw new Error('Failed to get friends');
         }
     })
     .then(data => {
