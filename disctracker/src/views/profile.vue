@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col justify-top items-center h-full w-full">
         
-        <div class="w-2/3 h-1/4 bg-slate-900 bg-opacity-90 rounded-lg mt-10 flex flex-col items-center">
+        <div class="w-2/3 h-1/4 bg-slate-900 bg-opacity-90 rounded-lg mt-10 flex flex-col items-center p-2">
             <h2 class="text-white text-xs md:text-xl lg:text-3xl font-bold overflow-hidden h-1/5">Your averages</h2>
             <div class="flex w-full h-full justify-center">
                 <div v-if="avgLoaded" class="h-4/5 w-1/4 mt-2 rounded-lg mr-10 flex items-top justify-center ml-10">
@@ -15,14 +15,14 @@
                 </div>
             </div>
         </div>
-        <div class="flex items-top justify-center w-2/3 h-1/4 mt-10 ">
-            <div class="w-1/2 h-full bg-slate-900 bg-opacity-90 rounded-lg mr-10 flex flex-col items-center">
+        <div class="flex items-top justify-center w-2/3 h-1/4 mt-10">
+            <div class="p-2 w-1/2 h-full bg-slate-900 bg-opacity-90 rounded-lg mr-10 flex flex-col items-center">
                 <h2 class="text-white text-xs md:text-xl lg:text-3xl font-bold overflow-hidden">Your previous round</h2>
                 <div v-if="previousLoaded" class="h-2/3 w-4/5 mt-2 flex items-center justify-center">
                     <Bar :options="roundOpt" :data="prevData" />
                 </div>
             </div>
-            <div class="w-1/2 h-full bg-slate-900 bg-opacity-90 rounded-lg flex flex-col items-center">
+            <div class="p-2 w-1/2 h-full bg-slate-900 bg-opacity-90 rounded-lg flex flex-col items-center">
                 <h2 class="text-white text-xs md:text-xl lg:text-3xl font-bold overflow-hidden">Your best round</h2>
                 <div v-if="bestLoaded" class="h-2/3 w-4/5 mt-2 flex items-center justify-center">
                     <Bar :options="roundOpt" :data="bestData" />
@@ -31,13 +31,13 @@
         </div>
         <div class="flex items-top justify-center w-2/3 h-1/3 mt-10 ">
             
-            <div class="w-1/3 h-full bg-slate-900 bg-opacity-90 rounded-lg mr-10 flex flex-col items-center">
+            <div class="p-2 w-1/3 h-full bg-slate-900 bg-opacity-90 rounded-lg mr-10 flex flex-col items-center">
                 <h2 class="text-white text-xs md:text-xl lg:text-3xl font-bold overflow-hidden">Played courses</h2>
                 <div v-if="playedLoaded" class="h-3/4 w-4/5 mt-2 flex items-center justify-center">
                     <Doughnut :options="coursesOpt" :data="coursesData" />
                 </div>
             </div>
-            <div class="w-1/3 h-full bg-slate-900 bg-opacity-90 rounded-lg mr-10 flex flex-col items-center">
+            <div class="p-2 w-1/3 h-full bg-slate-900 bg-opacity-90 rounded-lg mr-10 flex flex-col items-center">
             <h2 class="text-white text-md md:text-md lg:text-3xl font-bold ml-3">Change Password</h2>
             <div class="flex flex-col items-center w-2/3">
                 <input type="password" v-model="oldPw" class="border rounded py-2 ml-2 mt-5 mr-2 w-2/3 h-1/4 text-center" placeholder="Enter old password" required>
