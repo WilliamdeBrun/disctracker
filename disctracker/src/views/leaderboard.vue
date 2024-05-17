@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col justify-top items-center h-full w-full">
-      <div class="w-1/2 h-1/3 bg-slate-900 bg-opacity-90 rounded-lg mt-20 flex flex-col jusify-top items-center">
+      <div class="p-2 w-1/2 h-1/3 bg-slate-900 bg-opacity-90 rounded-lg mt-20 flex flex-col jusify-top items-center">
         <h2 class="text-white text-md md:text-xl lg:text-3xl font-bold">Top Players</h2>    
         <div class="flex items-start justify-top">      
             <table class="text-white text-md md:text-md lg:text-xl font-bold mt-5 flex flex-col items-center justify-top mr-10">
@@ -43,7 +43,7 @@
             
             
       </div>
-      <div class="w-2/3 h-1/3 bg-slate-900 bg-opacity-90 rounded-lg mt-20 flex flex-col jusify-top items-center">
+      <div class="p-2 w-2/3 h-1/3 bg-slate-900 bg-opacity-90 rounded-lg mt-20 flex flex-col jusify-top items-center">
             <h2 class="text-white text-md md:text-xl lg:text-3xl font-bold">Top Rounds</h2> 
             <div class="flex items-start justify-top">      
             <table class="text-white text-md md:text-md lg:text-xl font-bold mt-5 flex flex-col items-center justify-top mr-10">

@@ -155,16 +155,27 @@ def get_friends(uid):
     
     friends = Friends.query.filter((Friends.uid1==uid) | (Friends.uid2==uid) ).all()
     
-    friends_names = []
+    friends_dict = {}
     for friend in friends:
         if friend.uid1 == uid:
-            friends_names.append(Users.query.get(friend.uid2).username)
+            friends_dict[Users.query.get(friend.uid2).username] = get_friend_avg(friend.uid2)
         else:
-            friends_names.append(Users.query.get(friend.uid1).username)
+            friends_dict[Users.query.get(friend.uid1).username] = get_friend_avg(friend.uid1)
     
 
-    return jsonify({'friends': friends_names, 'message': 'Friends returned'}), 201
+    return jsonify({'friends': friends_dict, 'message': 'Friends returned'}), 201
 
+def get_friend_avg(uid):
+    scores = Score.query.filter(Score.uid==uid).all()
+    if not scores:
+        return '-'
+    hole_pars = {hole.holeid: hole.par for hole in Holes.query.all()}
+    friendscores = 0
+    for score in scores:
+        friendscores += (score.score - hole_pars[score.holeid])
+    friendscores = round(friendscores/len(scores),2)
+    return friendscores
+        
 
 @app.route('/changepw', methods=['POST'])
 @token_required
@@ -354,6 +365,7 @@ def get_your_avg(uid):
 
     
     return jsonify({'ryd': avg_ryd, 'hammaren': avg_hammaren, 'all': avg_all, 'message': 'Best round found'}), 200
+
 
 @app.route('/mostplayed', methods=['GET'])
 @token_required

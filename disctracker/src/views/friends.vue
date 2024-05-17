@@ -1,7 +1,7 @@
 <template>
    
     <div class="flex flex-col justify-top items-center h-full w-full">
-         <div class="w-1/2 h-1/4 bg-slate-900 bg-opacity-90 rounded-lg mt-20 flex flex-col items-center">
+         <div class="w-1/3 h-1/4 bg-slate-900 bg-opacity-90 rounded-lg mt-20 flex flex-col items-center p-2">
              <h2 class="text-white text-md md:text-xl lg:text-3xl font-bold ml-2">Find new friend</h2>
              <div>
                 <input v-model="playername" type="text" class="mt-5 ml-2 p-2 border border-gray-300 rounded-lg" placeholder="Search for a player">
@@ -15,10 +15,14 @@
              
              
          </div>
-         <div :style="{ height: 'calc(25% + ' +(friends.length * 10) + 'px)'  }" class="w-1/4 h-1/4 bg-slate-900 bg-opacity-90 rounded-lg mt-20 flex flex-col items-center">
-            <h2 class="text-white text-md md:text-xl lg:text-3xl font-bold ml-2">Your friends</h2>
-            <ul>
-                <li v-for="(friend, index) in friends" :key="index" class="text-white text-md md:text-md lg:text-xl font-bold">{{ friend }}</li>
+         <div class="w-1/6 h-1/2 bg-slate-900 bg-opacity-90 rounded-lg mt-20 flex flex-col items-center p-2 ">
+            <h2 class="text-white text-md md:text-xl lg:text-3xl font-bold mb-2">Your friends</h2>
+            <h3 class="text-white text-sm md:text-md lg:text-l font-bold mb-2">and their avg par score</h3>
+            <ul class="w-full overflow-auto">
+                <li v-for="(score, friend) in friends" :key="friend" class="flex justify-between text-white text-md md:text-md lg:text-xl font-bold p-2 mb-2 bg-slate-800 rounded-lg hover:bg-sky-400 trasition colors">
+                    <div class="ml-5">{{ friend }}:</div> 
+                    <div class="mr-5">{{ score }}</div>
+                </li>
             </ul>
          </div>
      </div>
@@ -89,7 +93,9 @@ const getFriends = () => {
     })
     .then(data => {
         if(data.friends){
+            
             friends.value = data.friends;
+            console.log(friends.value);
         }
     })
     .catch(error => {
@@ -107,4 +113,9 @@ const getFriends = () => {
  
  <style>
  /* Add your custom styles here */
+   /* Make scrollbar invisible*/
+   ::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+   }
  </style>
