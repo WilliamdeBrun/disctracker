@@ -384,6 +384,27 @@ def get_most_played(uid):
     
     return jsonify({'rounds': n_rounds, 'message': 'Played rounds found'}), 200
     
+@app.route('/coursepars', methods=['GET'])
+def get_course_pars():
+    ryd_f9, ryd_b9, ham_f9, ham_b9 = [], [], [], []
+    
+    holes = Holes.query.order_by(Holes.holenr).all()
+    for hole in holes:
+        if hole.courseid == 1:
+            if hole.holenr <= 9:
+                ham_f9.append(hole.par)
+            else:
+                ham_b9.append(hole.par)
+        else:
+            if hole.holenr <=9:
+                ryd_f9.append(hole.par)
+            else:
+                ryd_b9.append(hole.par)
+    if not (ryd_b9 or ryd_f9 or ham_b9 or ham_f9):
+        return jsonify({'message': 'Could not find courses'}), 204 
+    
+    return ({'rydf9': ryd_f9, 'rydb9': ryd_b9, 'hamf9': ham_f9, 'hamb9': ham_b9, 'message': 'Course pars found'}), 200
+
 
 @app.route('/dashboard', methods=['GET'])
 @token_required
