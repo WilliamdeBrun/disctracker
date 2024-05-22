@@ -6,39 +6,130 @@
             <form class="mt-4" @submit.prevent="startRound">
                 <div class="mb-2 mt-2">
                     <select id="coursePath" class="border border-gray-300 rounded px-4 py-2 w-64" v-model="coursePath">
-                        <option value="" disabled selected>Select Path</option>
-                        <option value="F9">Front 9</option>
-                        <option value="B9">Back 9</option>
-                        <option value="Full18">Full 18</option>
+                        <option numOfFriends="" disabled selected>Select Path</option>
+                        <option numOfFriends="F9">Front 9</option>
+                        <option numOfFriends="B9">Back 9</option>
+                        <option numOfFriends="Full18">Full 18</option>
                     </select>
                 </div>
-                <div v-for="index in 4" :key="index" class="mb-2">
-                    <input type="text" class="border border-gray-300 rounded px-4 py-2 w-64" v-model="players[index - 1]" :placeholder="'Player ' + index + ' name'">
+                <div v-for="index in numOfFriends" :key="index" class="mb-2">
+                    <input type="text" class="border border-gray-300 rounded px-4 py-2 w-64" v-model="players[index - 1]" :placeholder="'Player ' + index + ' name'" @input="selectSuggestion(players[index-1])" @click="swithIndex(index-1)">
+                    <ul class=" bg-slate-500 rounded-b-lg bg-opacity-30">
+                        <li v-if="(numOfFriends === newindex ? index === numOfFriends+1 : index === newindex+1)" v-for="(friend, index1) in filteredFriends" :key="index1" @click="selected(friend), selectSuggestion(players[index-1])" class="text-white text-md md:text-md lg:text-xl font-bold text-center">{{ friend }}</li>
+                    </ul>
                 </div>
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Start Round
+                <button @click="addNumofPlayers()" type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Add player
                 </button>
+                <button @click="$emit('playEvent', players)" type="submit" class=" ml-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Start round
+            </button>
             </form>   
-             
+           
          </div>
-            
+         
      </div>
  </template>
-   
-   
-   
-   
+ 
    <script setup>
    import { ref, onMounted} from 'vue'
-   
+
    // Define reactive variables
+   const numOfFriends = ref(0); 
+   const newindex = ref(0);
+   const players = ref([]);
+   const coursePath = ref('');
+   const friends = ref([]);
+   const filteredFriends = ref([]);
    const props = defineProps({
     course: String,
    });
-   const players = ref(['', '', '', '']);
-   const coursePath = ref('');
+
+   const addNumofPlayers = () => {
+    if (numOfFriends.value < 4){
+        numOfFriends.value = numOfFriends.value+1;
+    }
+   }
+
+   const swithIndex = (index) => {
+    newindex.value = index;
+   }
+
+   const selected = (friend) => {
+    
+    if (newindex.value != numOfFriends.value){
+        players.value.splice(newindex.value, 1, friend);
+    }
+    else{
+        players.value.splice(numOfFriends.value-1, 1,friend);
+    }
+       
+   }
+
+   const selectSuggestion = (suggestion) => {
+    
+    const filtered = friends.value.filter(friend => {
+        return friend.toLowerCase().includes(suggestion.toLowerCase());
+    });
+  
+    filteredFriends.value = filtered;
+    if(filteredFriends.value.length === 1){
+        filteredFriends.value = [];
+    } 
+
+   };
   
   onMounted(async () => {
+    fetch('http://127.0.0.1:5000/getfriends', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }else{
+            throw new error('Failed to get friends');
+        }
+    })
+    .then(data => {
+        if(data.friends){
+            friends.value = data.friends;
+        }
+    })
+    .catch(error => {
+        console.error('Error adding friends:', error.message);
+        
+    });
+
+    fetch('http://127.0.0.1:5000/getuser', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }else{
+            throw new error('Failed to get user');
+        }
+    })
+    .then(data => {
+        if(data){
+            const {uid, username, realname, email} = data;
+            players.value.push(username);
+            numOfFriends.value = numOfFriends.value + 1;
+        }
+    })
+    .catch(error => {
+        console.error('Error adding user:', error.message);
+        
+    });
+
   });
   
   
