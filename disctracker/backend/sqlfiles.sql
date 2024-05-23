@@ -72,4 +72,6 @@ CREATE TABLE score (
     CONSTRAINT fk_course_score FOREIGN KEY (courseid) REFERENCES course(courseid)
 );
 
-# select * from users;
+select * from course;
+select * from score;
+select * from rounds;

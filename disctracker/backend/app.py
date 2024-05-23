@@ -191,19 +191,51 @@ def change_pw(uid):
 def save_score(uid):
     # Get user details from request
     course = request.json.get('course_name')
-    score = request.json.get('score')
-    hole_number = request.json.get('hole_number')
+    scores = request.json.get('score')
+    
+    print(course, scores)
+    roundid = Rounds()
+    db.session.add(roundid)
+    # Get the course ID from the database
     courseid = Course.query.filter_by(coursename=course).first()
-    hole = Holes.query.filter_by(courseid=courseid.id, holenr=hole_number).first()
-    if not hole:
-        return jsonify({'message': 'Invalid hole number'}), 409
+    if not courseid:
+        return jsonify({'message': 'Course not found'}), 404
 
-    # Create new score
-    new_score = Score(uid=uid, courseid=courseid.id, holeid=hole.holeid, score=score)
-    db.session.add(new_score)
+    # Iterate over the scores and save them
+    
+    for score in scores:
+        hole_number = score[0]
+        player_scores = score[1]
+        
+        # Get the hole ID from the database
+       
+        hole = Holes.query.filter_by(courseid=courseid.courseid, holenr=hole_number+1).first()
+        if not hole:
+            return jsonify({'message': f'Invalid hole number {hole_number}'}), 409
+
+        print(hole.holeid)
+        holeid = hole.holeid  # Use hole.holeid for the current hole number
+        # Save each player's score for this hole
+        for player_score in player_scores:
+            print(player_score)
+            score_value = player_score[0]
+            player_name = player_score[1]
+            
+            # Find the player by name (assuming you have a User model)
+            if(score_value != 0):
+                user = Users.query.filter_by(username=player_name).first()
+                if not user:
+                    return jsonify({'message': f'User {player_name} not found'}), 404
+            
+                # Create new score entry
+                new_score = Score(uid=user.id, courseid=courseid.courseid, holeid=holeid, score=score_value, roundid=roundid.roundid)
+                db.session.add(new_score)
+
+
+    # Commit all the new score entries to the database
     db.session.commit()
+    return jsonify({'message': 'Scores created successfully'}), 201
 
-    return jsonify({'message': 'Score created successfully'}), 201
 
 @app.route('/getscores', methods=['GET'])
 def get_scores():
@@ -292,11 +324,10 @@ def load_user(uid):
 @app.route('/getusers', methods=['POST'])
 @token_required
 def load_users(uid):
-    print("hej")
     list_of_users = request.json.get('list_of_users')
     users = Users.query.filter(Users.username.in_(list_of_users)).all()
+    friends = Friends.query.filter((Friends.uid1==uid) | (Friends.uid2==uid)).all()
     user_list = []
-    print("hej2")
     for username in list_of_users:
         user = next((u for u in users if u.username == username), None)
         if user:
@@ -304,7 +335,6 @@ def load_users(uid):
         else:
             user_data = {'uid': 'temp', 'username': 'temp', 'realname': 'temp', 'email': 'temp@domain.com'}
         user_list.append(user_data)
-    print(user_list)
     return jsonify({'users': user_list, 'message': 'Users returned'}), 200
 
 
@@ -354,7 +384,7 @@ class Score(db.Model):
     scoreid = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     courseid = db.Column(db.Integer, db.ForeignKey('course.courseid'), nullable=False)
-    holeid = db.Column(db.Integer, db.ForeignKey('hole.holeid'), nullable=False)
+    holeid = db.Column(db.Integer, db.ForeignKey('holes.holeid'), nullable=False)
     score = db.Column(db.Integer)
     roundid = db.Column(db.Integer, db.ForeignKey('rounds.roundid'), nullable=False)
     user = db.relationship('Users', backref=db.backref('score', lazy=True))

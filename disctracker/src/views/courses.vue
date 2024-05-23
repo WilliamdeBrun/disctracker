@@ -25,7 +25,7 @@
                 </template>
             </div>
             <div>
-                <button @click="$emit('startEvent', 'Rydskogen DGC')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-xs md:text-xs lg:text-sm ml-2">Start Round</button>
+                <button @click="$emit('startEvent', 'Rydskogens DGC')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-xs md:text-xs lg:text-sm ml-2">Start Round</button>
                 
                 
             </div>
