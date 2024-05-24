@@ -56,12 +56,12 @@
     <h1 class="text-5xl text-white font-bold">{{ dbHeader }}</h1>
     <div class="flex justify-center items-start w-full h-full">
       <home @myEvent="updateDashboard('Courses')" v-if="dbHeader === 'Home'"/>
-      <round v-if="dbHeader === 'Round'" :players="players" :course="course" />
+      <round v-if="dbHeader === 'Round'" :players="players" :typeOfRound="typeOfRound" :course="course"/>
       <profile v-else-if="dbHeader === 'Profile'"/>
       <leaderboard v-else-if="dbHeader === 'Leaderboard'"/>
       <tournament v-else-if="dbHeader === 'Tournament'"/>
       <courses @startEvent="updateDashboard('Startround', $event)"  v-else-if="dbHeader === 'Courses'" />
-      <startround @playEvent="updateDashboard('Round', '', $event)" :course="course" v-else-if="dbHeader === 'Startround'"/>
+      <startround @playEvent="updateDashboard('Round', '', $event)" @send="setTypeOfRound($event)":course="course" v-else-if="dbHeader === 'Startround'"/>
       <friends v-else-if="dbHeader === 'Friends'"/>
     </div>
   </div>
@@ -91,9 +91,14 @@
 
   
   // Define reactive variables
+  const typeOfRound = ref('');
   const username = ref('');
   const isDarkmode = ref(localStorage.getItem('darkModeState') === 'true');
-
+  const setTypeOfRound = (type) => {
+    console.log("dashboard",type);
+    typeOfRound.value = type;
+    console.log("dashboard",typeOfRound.value);
+  };
   // Define methods
   const toggleMode = () => {
 
@@ -107,6 +112,7 @@
     
   };
   onMounted(async () => {
+    console.log(typeOfRound.value);
     fetch('http://localhost:5000/dashboard', {
     method: 'GET',
     headers: {
@@ -129,8 +135,9 @@
   const dbHeader = ref('Home');
   const course = ref('');
   const players = ref(['', '', '', '']);
-  const updateDashboard = (text, courseName, player) => {
-    console.log(courseName);
+
+  const updateDashboard = (text, courseName, player, typeOfRound) => {
+    console.log("here",typeOfRound);
     dbHeader.value = text;
     if (courseName != ''){
       course.value = courseName;

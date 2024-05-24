@@ -5,11 +5,10 @@
             <h2 class="text-white text-md md:text-xl lg:text-3xl font-bold">Start new round at {{ course }} </h2>
             <form class="mt-4" @submit.prevent="startRound">
                 <div class="mb-2 mt-2">
-                    <select id="coursePath" class="border border-gray-300 rounded px-4 py-2 w-64" v-model="coursePath">
-                        <option numOfFriends="" disabled selected>Select Path</option>
-                        <option numOfFriends="F9">Front 9</option>
-                        <option numOfFriends="B9">Back 9</option>
-                        <option numOfFriends="Full18">Full 18</option>
+                    <select id="typeOfRound" class="border border-gray-300 rounded px-4 py-2 w-64" v-model="selectedOption" @change="changePath()">
+                        <option value="F9">Front 9</option>
+                        <option value="B9">Back 9</option>
+                        <option value="Full18">Full 18</option>
                     </select>
                 </div>
                 <div v-for="index in numOfFriends" :key="index" class="mb-2">
@@ -21,7 +20,7 @@
                 <button @click="addNumofPlayers()" type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Add player
                 </button>
-                <button @click="$emit('playEvent', players)" type="submit" class=" ml-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <button @click="$emit('playEvent', players), $emit('send', typeOfRound)" type="submit" class=" ml-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Start round
             </button>
             </form>   
@@ -35,16 +34,20 @@
    import { ref, onMounted} from 'vue'
 
    // Define reactive variables
+   const selectedOption = ref('Full18');
    const numOfFriends = ref(0); 
    const newindex = ref(0);
    const players = ref([]);
-   const coursePath = ref('');
+   const typeOfRound = ref('');
    const friends = ref([]);
    const filteredFriends = ref([]);
    const props = defineProps({
     course: String,
    });
-
+   const changePath = () => {
+    typeOfRound.value = selectedOption.value;
+    console.log(typeOfRound.value);
+   }
    const addNumofPlayers = () => {
     if (numOfFriends.value < 4){
         numOfFriends.value = numOfFriends.value+1;

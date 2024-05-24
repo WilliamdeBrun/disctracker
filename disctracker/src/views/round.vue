@@ -59,7 +59,7 @@
                             </div>
                             <div class="w-full h-full flex justify-end mr-3 items-center text-center"> 
                                 <div class="rounded-md bg-slate-600  w-[160px] h-[90%]" @click="subScore(index)">-</div>
-                                <div class="text-white w-[140px] h-[70%] text-[120px] -mt-20">{{ Score[index] }}</div>
+                                <div class="text-white w-[140px] h-[70%] text-[120px] -mt-20">{{ Score[index][0] }}</div>
                                 <div class="rounded-md bg-slate-600  w-[160px] h-[90%]" @click="addScore(index)">+</div>
                             </div>
                         </div> 
@@ -77,6 +77,10 @@
 
   const props = defineProps({
     course: String,
+    typeOfRound: {
+        type: String,
+        default: 'Full18'
+    },
     players: {
     type: Array,
     default: () => [],
@@ -87,8 +91,14 @@
 
   // Define reactive variables
   const updatePlayer = ref([]);
-  const username = ref('user1');
+  const username = ref('');
+  const notTempPlayerList = ref([]);
   const Score = ref([]);
+  const ScoreCopy = ref([]);
+  const localTotScore = ref([]);
+  const savescoreOnHole = ref(18);
+  const holePar = ref([]);
+
   const Hole = ref(1);
   const active = ref(1);
   const highlight = (item, players) => {
@@ -96,24 +106,58 @@
      username.value = players[item-1];
   }
   const addScore = (index) => {
-    Score.value[index] += 1;
+    console.log(Hole.value);
+    localTotScore.value[Hole.value-1][1][index][0] += 1;
+    Score.value[index][0] = localTotScore.value[Hole.value-1][1][index][0];
+    console.log("addScore: ",Score.value);
   };
   const subScore = (index) => {
-    if (Score.value[index] > 0){
-        Score.value[index] -= 1;
+    if (localTotScore.value[Hole.value-1][1][index][0] > 0){
+        localTotScore.value[Hole.value-1][1][index][0] -= 1;
+        Score.value[index][0] = localTotScore.value[Hole.value-1][1][index][0];
     }
   };
   const changeNextHole = () => {
+    if(Hole.value === savescoreOnHole.value){
+        saveScore();
+    }
     if (Hole.value < 18){
+        savescorelocal();
         Hole.value += 1;
     }
   };
   const changePrevHole = () => {
     if (Hole.value > 1){
         Hole.value -= 1;
+        for(let i = 0; i < Score.value.length; i++){
+            Score.value[i][0] = localTotScore.value[Hole.value-1][1][i][0];
+        }
+        //Score.value[0] = localTotScore.value[0][s];
+        //savescorelocal(); 
     }
   };
-  const saveScore = (course) => {
+
+
+  const savescorelocal = () => {
+    console.log("first ", localTotScore.value[0], "Score: ", Score.value);
+    //localTotScore.value.push([Hole.value,Score.value,username.value]);
+    console.log("second ", localTotScore.value);
+    ScoreCopy.value = Score.value;
+    Score.value = [];
+    for (let i = 0; i < ScoreCopy.value.length; i++) {
+        Score.value.push([0,ScoreCopy.value[i][1]]);
+    }
+    for(let i = 0; i < Score.value.length; i++){
+        //console.log("localTotScore: ",localTotScore.value[Hole.value][1][i][0]);
+        //localTotScore.value.push([Hole.value,Score.value.slice(),username.value]);
+        Score.value[i][0] = localTotScore.value[Hole.value][1][i][0];
+    }  
+    console.log("end localTotscore ",localTotScore.value);
+    //localStorage.setItem('score', JSON.stringify(Score.value));
+  };
+
+
+  const saveScore = () => {
     fetch('http://localhost:5000/savescoreonhole', {
         method: 'POST',
         headers: {
@@ -121,17 +165,15 @@
             'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         },
         body: JSON.stringify({
-            course_name: course.value,
-            score: Score.value,
-            hole_number: Hole.value,
+            course_name: props.course,
+            score: localTotScore.value
         }),
-
     })
     .then(response => {
         if (response.ok) {
-            // Score saved
+
         } else {
-            // Score not saved
+
         }
     })
     .catch(error => {
@@ -152,6 +194,35 @@
     
   };
   onMounted(async () => {
+    console.log(props.typeOfRound);
+    props.players.forEach((player, index) => {
+    if(player !== ''){
+        updatePlayer.value.push(player); 
+        Score.value.push([0,player]);   
+    }   
+    });
+    for(let i = 0; i < 18; i++){
+            ScoreCopy.value = Score.value;
+            Score.value = [];
+            for (let j = 0; j < ScoreCopy.value.length; j++) {
+                Score.value.push([0,ScoreCopy.value[j][1]]);
+            }
+            localTotScore.value.push([i,Score.value.slice()]);
+    }
+    if(props.typeOfRound === 'F9'){
+        Hole.value = 1;
+        savescoreOnHole.value = 9;
+    }else if(props.typeOfRound === 'B9'){
+        savescoreOnHole.value = 18;
+        Hole.value = 10;
+    }else{
+        savescoreOnHole.value = 18;
+        Hole.value = 1;
+    }        
+   
+    
+
+
     fetch('http://localhost:5000/getusers', {
     method: 'POST',
     headers: {
@@ -159,7 +230,7 @@
         'Authorization': `Bearer ${localStorage.getItem('access_token')}`
     },
     body: JSON.stringify({
-        list_of_users: updatePlayer // Replace this array with your list of users
+        list_of_users: updatePlayer.value 
     })
     })
     .then(response => {
@@ -171,26 +242,20 @@
     })
     .then(data => {
         if(data){
-            console.log(data);
+           
+        console.log("notTempPlayerList: ",notTempPlayerList.value);
         }
     })
     .catch(error => {
         console.error('Failed to check token:', error);
     });
-
-    props.players.forEach((player, index) => {
-    if(player !== ''){
-        updatePlayer.value.push(player); 
-        Score.value.push(0);   
-    }   
-});
  });
 </script>
 
 
 <style scoped>
 .highlighted {
-  border: 2px solid yellow; /* Example highlight style */
+  border: 2px solid yellow;
 }
 </style>
   
