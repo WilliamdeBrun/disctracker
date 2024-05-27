@@ -70,11 +70,9 @@
    }
 
    const selectSuggestion = (suggestion) => {
-    
     const filtered = friends.value.filter(friend => {
         return friend.toLowerCase().includes(suggestion.toLowerCase());
     });
-  
     filteredFriends.value = filtered;
     if(filteredFriends.value.length === 1){
         filteredFriends.value = [];
@@ -83,7 +81,7 @@
    };
   
   onMounted(async () => {
-    fetch('http://127.0.0.1:5000/getfriends', {
+    fetch('http://127.0.0.1:5000/getfriendsarray', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

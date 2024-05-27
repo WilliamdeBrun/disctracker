@@ -90,6 +90,7 @@ def get_user_by_password(username, password):
 
 @app.route('/login', methods=['POST'])
 def login():
+    """simple login function that validates with password"""
     # Get username and password from request
     username = request.json.get('username')
     password = request.json.get('password')
@@ -108,6 +109,7 @@ def login():
 
 @app.route('/register', methods=['POST'])
 def register():
+    """function for registering users"""
     # Get user details from request
     username = request.json.get('username')
     realname = request.json.get('realname')
@@ -131,6 +133,7 @@ def register():
 @app.route('/addfriend', methods=['POST'])
 @token_required
 def add_friend(uid):
+    """function that takes a uid and adds a friend if the username is valid and they are not already friends"""
     # Get user details from request
     playername = request.json.get('playername')
 
@@ -152,6 +155,7 @@ def add_friend(uid):
 @app.route('/getfriends', methods=['GET'])
 @token_required
 def get_friends(uid):
+    """function that takes a uid and returns that users friends and their average par score"""
     
     friends = Friends.query.filter((Friends.uid1==uid) | (Friends.uid2==uid) ).all()
     
@@ -165,7 +169,25 @@ def get_friends(uid):
 
     return jsonify({'friends': friends_dict, 'message': 'Friends returned'}), 201
 
+@app.route('/getfriendsarray', methods=['GET'])
+@token_required
+def get_friends1(uid):
+    
+    friends = Friends.query.filter((Friends.uid1==uid) | (Friends.uid2==uid) ).all()
+    
+    friends_names = []
+    for friend in friends:
+        if friend.uid1 == uid:
+            friends_names.append(Users.query.get(friend.uid2).username)
+        else:
+            friends_names.append(Users.query.get(friend.uid1).username)
+    
+
+    return jsonify({'friends': friends_names, 'message': 'Friends returned'}), 201
+
+
 def get_friend_avg(uid):
+    """helper function to get_friends that returns the avg par score of the friend"""
     scores = Score.query.filter(Score.uid==uid).all()
     if not scores:
         return '-'
@@ -180,6 +202,7 @@ def get_friend_avg(uid):
 @app.route('/changepw', methods=['POST'])
 @token_required
 def change_pw(uid):
+    """function that takes a uid and changes the password of that users uid"""
     user = Users.query.get(uid)
     old_pw = request.json.get('old_pw')
     new_pw = request.json.get('new_pw')
@@ -200,6 +223,7 @@ def change_pw(uid):
 @app.route('/savescoreonhole', methods=['POST'])
 @token_required
 def save_score(uid):
+    """function that takes a uid and saves the score of that users current round"""
     # Get user details from request
     course = request.json.get('course_name')
     scores = request.json.get('score')
@@ -259,6 +283,7 @@ def get_scores():
 
 @app.route('/getscoresrounds', methods=['GET'])
 def get_scores_rounds():
+    """gets the five best rounds on each course path"""
     best_ham_f9, best_ham_18, best_ham_b9 = get_rounds(1) 
     best_ryd_f9, best_ryd_18, best_ryd_b9 = get_rounds(2) 
     return jsonify({'best_ham_f9': best_ham_f9, 'best_ham_18': best_ham_18, 'best_ham_b9': best_ham_b9, 'best_ryd_f9': best_ryd_f9, 'best_ryd_18': best_ryd_18, 'best_ryd_b9': best_ryd_b9,'message': 'Scores retrieved successfully'}), 200
@@ -418,6 +443,7 @@ def get_most_played(uid):
     
 @app.route('/coursepars', methods=['GET'])
 def get_course_pars():
+    """Function that retrieves the hole-pars on the courses from the database"""
     ryd_f9, ryd_b9, ham_f9, ham_b9 = [], [], [], []
     
     holes = Holes.query.order_by(Holes.holenr).all()
@@ -441,11 +467,13 @@ def get_course_pars():
 @app.route('/dashboard', methods=['GET'])
 @token_required
 def load_dashboard(uid):
+    """function that does a authentication check with token_required"""
     return jsonify({'message': 'Dashboard loaded successfully'}), 200
 
 @app.route('/getuser', methods=['GET'])
 @token_required
 def load_user(uid):
+    """function that takes a uid and returns relevant userdata for that user"""
     print(uid)
     user = Users.query.get(uid)
     if not user:
@@ -455,9 +483,9 @@ def load_user(uid):
 @app.route('/getusers', methods=['POST'])
 @token_required
 def load_users(uid):
+    """function that returns a list of users with relevant userdata"""
     list_of_users = request.json.get('list_of_users')
     users = Users.query.filter(Users.username.in_(list_of_users)).all()
-    friends = Friends.query.filter((Friends.uid1==uid) | (Friends.uid2==uid)).all()
     user_list = []
     for username in list_of_users:
         user = next((u for u in users if u.username == username), None)

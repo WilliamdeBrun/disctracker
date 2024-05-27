@@ -110,6 +110,7 @@
     return val * Math.PI / 180;
   };
   const getCourseDist = computed(() => {
+    /*gets user distance to courses*/
     if(coords.value.latitude && coords.value.longitude){
         const userLat = coords.value.latitude;
         const userLong = coords.value.longitude;
@@ -152,6 +153,7 @@
 onMounted(async () => {
   getCoursePars();
  });
+//watcher to continously update the users position
 watch(coords, () => {
     getCourseDist.value;
 });

@@ -24,10 +24,6 @@
         <i class="fa fa-line-chart text-white mr-2"></i>
         <p class="text-white">Leaderboard</p>
       </div> 
-      <div class="hover:bg-sky-400 cursor-pointer rounded-lg p-2 mt-2 flex items-center" @click="updateDashboard('Tournament')">
-        <i class="fa fa-trophy text-white mr-2"></i>
-        <p class="text-white">Tournament</p>
-      </div> 
       <div class="hover:bg-sky-400 cursor-pointer rounded-lg p-2 mt-2 flex items-center" @click="updateDashboard('Courses')">
         <i class="fa fa-flag text-white mr-2"></i>
         <p class="text-white">Courses</p>
@@ -59,7 +55,6 @@
       <round v-if="dbHeader === 'Round'" :players="players" :typeOfRound="typeOfRound" :course="course"/>
       <profile v-else-if="dbHeader === 'Profile'"/>
       <leaderboard v-else-if="dbHeader === 'Leaderboard'"/>
-      <tournament v-else-if="dbHeader === 'Tournament'"/>
       <courses @startEvent="updateDashboard('Startround', $event)"  v-else-if="dbHeader === 'Courses'" />
       <startround @playEvent="updateDashboard('Round', '', $event)" @send="setTypeOfRound($event)":course="course" v-else-if="dbHeader === 'Startround'"/>
       <friends v-else-if="dbHeader === 'Friends'"/>
@@ -82,7 +77,6 @@
   import courses from './courses.vue'
   import leaderboard from './leaderboard.vue'
   import profile from './profile.vue'
-  import tournament from './tournament.vue'
   import startround from './startround.vue'
   import round from './round.vue'
   import friends from './friends.vue'
@@ -100,17 +94,6 @@
     console.log("dashboard",typeOfRound.value);
   };
   // Define methods
-  const toggleMode = () => {
-
-  };
-
-  const handleSignin = () => {
-  
-  };
-
-  const handleSignup = () => {
-    
-  };
   onMounted(async () => {
     console.log(typeOfRound.value);
     fetch('http://localhost:5000/dashboard', {

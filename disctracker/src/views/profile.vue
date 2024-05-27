@@ -450,6 +450,7 @@ const mostPlayed = () => {
  });
  const getData = async () =>{
   try{
+    /*here we wait for the data to be loaded from the backend before we can render*/
     await prevRound();
     previousLoaded.value = true;
     await bestRound();

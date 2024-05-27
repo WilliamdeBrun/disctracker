@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-wrap relative justify-center items-top w-full">
+    <div class="flex flex-wrap relative justify-center items-top w-full mt-44">
         <div class="lg:w-8/12 w-11/12 lg:mx-2 my-2 h-96">
             <div class="relative bg-slate-900 bg-opacity-90 rounded-lg p-4 h-full">
                 <p class="text-white">Welcome back {{ username }}</p>
@@ -28,15 +28,7 @@
                 <p class="text-white">Start new game</p>
             </div>
         </div>
-        <div class="relative justify-center lg:w-8/12 w-11/12 lg:mx-2 my-2 h-60">
-            <div class="flex flex-col bg-slate-900 bg-opacity-90 rounded-lg p-4 h-full justify-center items-center hover:bg-slate-800 hover:bg-opacity-90"
-                        @click="$emit('myEvent')">
-                <p class="text-white text-center">Start new tournament</p>
-            </div>
-        </div>
-       
     </div>
-    
 </template>
   
   
