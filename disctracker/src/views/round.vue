@@ -204,6 +204,7 @@
         for(let i = 0; i < 9; i++){
             for(let j = 0; j < Score.value.length; j++){
                 localTotScore.value[i][1][j][0] = HolePar.value[0][i];
+                localTotScore.value[17][1][j][0] = 0;
             }
         }
     }else if(props.typeOfRound === 'B9'){
@@ -234,38 +235,11 @@
     }
             
     for(let i = 0; i < Score.value.length; i++){
-        //console.log("localTotScore: ",localTotScore.value[Hole.value][1][i][0]);
-        //localTotScore.value.push([Hole.value,Score.value.slice(),username.value]);
         Score.value[i][0] = localTotScore.value[Hole.value-1][1][i][0];
-        localTotScore.value[17][1][i][0] = 0;
+        if(props.typeOfRound === 'F9'){
+            localTotScore.value[17][1][i][0] = 0;
+        }
     }
-
-    fetch('http://localhost:5000/getusers', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-    },
-    body: JSON.stringify({
-        list_of_users: updatePlayer.value 
-    })
-    })
-    .then(response => {
-        if (response.ok){
-            return response.json();
-        }else{
-            throw new error('Failed to get user');
-        }
-    })
-    .then(data => {
-        if(data){
-           
-        console.log("notTempPlayerList: ",notTempPlayerList.value);
-        }
-    })
-    .catch(error => {
-        console.error('Failed to check token:', error);
-    });
  });
 </script>
 
