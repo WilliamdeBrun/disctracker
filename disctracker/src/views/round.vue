@@ -49,10 +49,9 @@
 
 
 
-  // Define reactive variables
+  // Our reactive variables
   const updatePlayer = ref([]);
   const username = ref('');
-  const notTempPlayerList = ref([]);
   const Score = ref([]);
   const ScoreCopy = ref([]);
   const localTotScore = ref([]);
@@ -61,23 +60,23 @@
   const hamholePar = ref([]);
   const HolePar = ref([]);
   const Hole = ref(1);
-  const active = ref(1);
-  const highlight = (item, players) => {
-     active.value = item;
-     username.value = players[item-1];
-  }
+
+  //A function that adds a score to a player
   const addScore = (index) => {
-    console.log(Hole.value);
+
     localTotScore.value[Hole.value-1][1][index][0] += 1;
     Score.value[index][0] = localTotScore.value[Hole.value-1][1][index][0];
-    console.log("addScore: ",Score.value);
+  
   };
+  //A function that subtracts a score from a player
   const subScore = (index) => {
     if (localTotScore.value[Hole.value-1][1][index][0] > 0){
         localTotScore.value[Hole.value-1][1][index][0] -= 1;
         Score.value[index][0] = localTotScore.value[Hole.value-1][1][index][0];
     }
   };
+  //A function that changes the hole to the next hole, and saves the score if the hole is the same as the hole to save the score on.
+  // (default is 18, so it saves the score on the last hole)
   const changeNextHole = () => {
     if(Hole.value === savescoreOnHole.value){
         saveScore();
@@ -87,37 +86,31 @@
         Hole.value += 1;
     }
   };
+  //A function that changes the hole to the previous hole
   const changePrevHole = () => {
     if (Hole.value > 1){
         Hole.value -= 1;
         for(let i = 0; i < Score.value.length; i++){
             Score.value[i][0] = localTotScore.value[Hole.value-1][1][i][0];
         }
-        //Score.value[0] = localTotScore.value[0][s];
-        //savescorelocal(); 
+       
     }
   };
 
-
+  //A function that saves the score on the local variable
   const savescorelocal = () => {
-    console.log("first ", localTotScore.value[0], "Score: ", Score.value);
-    //localTotScore.value.push([Hole.value,Score.value,username.value]);
-    console.log("second ", localTotScore.value);
     ScoreCopy.value = Score.value;
     Score.value = [];
     for (let i = 0; i < ScoreCopy.value.length; i++) {
         Score.value.push([0,ScoreCopy.value[i][1]]);
     }
     for(let i = 0; i < Score.value.length; i++){
-        //console.log("localTotScore: ",localTotScore.value[Hole.value][1][i][0]);
-        //localTotScore.value.push([Hole.value,Score.value.slice(),username.value]);
+        
         Score.value[i][0] = localTotScore.value[Hole.value][1][i][0];
-    }  
-    console.log("end localTotscore ",localTotScore.value);
-    //localStorage.setItem('score', JSON.stringify(Score.value));
+    } 
   };
 
-
+  //A function that gets the holepars for the current course that is being played 
   const getHolePar = async () => {
     await fetch('http://localhost:5000/coursepars', {
         method: 'GET',
@@ -148,6 +141,7 @@
     });
     };
 
+  // A function that saves the score to the SQL database.  
   const saveScore = () => {
     fetch('http://localhost:5000/savescoreonhole', {
         method: 'POST',
@@ -172,24 +166,28 @@
     });
   };
 
-  // Define methods
-  
+  // A function that is being called when the component is mounted.
   onMounted(async () => {
+
+    // To start with, the holepars for the current course is fetched.
     await getHolePar(); 
     
+    // check which course is being played and set the holepars accordingly
     if(props.course === 'Rydskogens DGC'){
         HolePar.value = rydholePar.value;
     }else{
         HolePar.value = hamholePar.value;
     }
 
-    console.log(props.typeOfRound);
+    // Set up the players and their scores, starting with 0 for each player.
     props.players.forEach((player, index) => {
     if(player !== ''){
         updatePlayer.value.push(player); 
         Score.value.push([0,player]);   
     }   
     });
+
+    // Set up the localTotScore variable with the scores for each player on each hole.
     for(let i = 0; i < 18; i++){
             ScoreCopy.value = Score.value;
             Score.value = [];
@@ -218,22 +216,19 @@
     }else{
         savescoreOnHole.value = 18;
         Hole.value = 1;
-        console.log("HolePar: ",HolePar.value[0][0]);
-        console.log(localTotScore.value[0][1][0][0]);
         for(let i = 0; i < 9; i++){
             for(let j = 0; j < Score.value.length; j++){
-                console.log(i,j);
                 localTotScore.value[i][1][j][0] = HolePar.value[0][i];
             }
         }
         for(let i = 9; i < 18; i++){
             for(let j = 0; j < Score.value.length; j++){
-                console.log(HolePar.value);
                 localTotScore.value[i][1][j][0] = HolePar.value[1][i-9];
             }
         }
     }
-            
+    
+    // This is for the first hole, to set the scores for each player.
     for(let i = 0; i < Score.value.length; i++){
         Score.value[i][0] = localTotScore.value[Hole.value-1][1][i][0];
         if(props.typeOfRound === 'F9'){
