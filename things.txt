@@ -1,0 +1,27 @@
+ToDo
+<x> Set up a basic Flask + Flask-Cors
+<x> first fetched data from backend 
+<> Create sqlite database (simple) and insert some data via the frontend.
+<> Fetch some data from the database via flask and present it in the frontend.
+
+
+Dependencies:
+Vue.js
+Tailwind.css
+Flask
+Flask-Cors
+Mysql
+SQLAlchemy (python tool to connect to flask)
+jwt (pip install PyJWT)
+
+
+
+
+
+
+
+
+
+
+
+
